@@ -14,8 +14,8 @@
     <link rel="manifest" href="manifest.json">
     <title>HerreríaValan</title>
 
-    <!-- Librería para generar el PDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- Librería para generar Imagen (Reemplaza a la del PDF) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
         :root {
@@ -50,131 +50,79 @@
         /* Estilos del Formulario */
         .input-form { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 1rem; }
         
-        .fila-item {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr auto;
-            gap: 5px;
-            margin-bottom: 5px;
-            align-items: center;
-            background-color: #f8fafc;
-            padding: 10px;
-            border-radius: 6px;
-            border: 1px solid #e2e8f0;
-        }
-        
+        .fila-item { display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 5px; margin-bottom: 5px; align-items: center; background-color: #f8fafc; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0; }
         .fila-item input { margin-bottom: 0; padding: 8px; }
-        
-        input[type="number"]::-webkit-inner-spin-button, 
-        input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         
         .btn-principal { background-color: var(--primario); color: white; padding: 12px; border: none; border-radius: 6px; font-size: 1rem; font-weight: bold; width: 100%; cursor: pointer; margin-top: 10px; }
         .btn-secundario { background-color: var(--acento); color: white; padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; margin-bottom: 15px; font-weight: bold; }
         .btn-eliminar { background-color: #ef4444; color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer; font-weight: bold; height: 100%; }
-
         .total-box { font-size: 1.2rem; font-weight: bold; text-align: right; padding: 10px 0; color: var(--primario); }
 
         .acciones-presupuesto { display: flex; gap: 8px; margin-top: 15px; }
         .btn-accion { flex: 1; padding: 8px; border: none; border-radius: 4px; font-size: 0.85rem; font-weight: bold; color: white; cursor: pointer; }
         .btn-whatsapp { background-color: #25D366; }
-        .btn-pdf { background-color: var(--acento); }
+        .btn-img { background-color: var(--acento); }
         .btn-borrar { background-color: #dc2626; }
 
-        /* Barra de navegación inferior */
         .nav-inferior { position: fixed; bottom: 0; width: 100%; background-color: white; display: flex; justify-content: space-around; padding: 10px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 100; }
         .nav-btn { background: none; border: none; color: #94a3b8; font-size: 0.8rem; display: flex; flex-direction: column; align-items: center; width: 25%; }
         .nav-btn.activo { color: var(--acento); font-weight: bold; }
         .icono { font-size: 1.5rem; margin-bottom: 4px; }
 
-        /* ESTILOS DEL PDF (Oculto por defecto) */
-        #plantilla-pdf { display: none; padding: 20px; font-family: Arial, sans-serif; color: black; background: white; width: 800px; }
+        /* ESTILOS DE LA IMAGEN EXPORTADA (Oculto por defecto) */
+        #plantilla-export { display: none; padding: 20px; font-family: Arial, sans-serif; color: black; background: white; width: 800px; }
         
-        /* CLASE CLAVE PARA EVITAR RECORTES EN PC Y CELULAR */
-        .pdf-export-activo {
-            display: block !important;
-            position: absolute !important;
-            top: 0 !important;
-            left: 0 !important;
-            width: 800px !important;
-            background-color: white !important;
-            z-index: 99999 !important;
-        }
-
         .pdf-borde { border: 2px solid black; padding: 2px; }
         .pdf-header { display: flex; justify-content: space-between; border-bottom: 2px solid black; padding-bottom: 10px; margin-bottom: 10px; }
         .pdf-logo-titulo { display: flex; align-items: center; gap: 15px; }
         .pdf-logo-titulo img { width: 80px; height: 80px; object-fit: contain; }
-        .pdf-info-empresa { text-align: center; font-size: 12px; margin-bottom: 10px; font-weight: bold; }
+        .pdf-info-empresa { text-align: center; font-size: 14px; margin-bottom: 10px; font-weight: bold; }
         .pdf-fechas { display: flex; flex-direction: column; align-items: center; }
         .pdf-cuadros-fecha { display: flex; margin-top: 5px; }
         .pdf-cuadros-fecha div { border: 2px solid black; width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; margin-left: -2px; font-weight: bold; }
-        .pdf-cliente-info { border-top: 2px solid black; border-bottom: 2px solid black; padding: 10px 5px; margin-bottom: 0; font-size: 14px; }
+        .pdf-cliente-info { border-top: 2px solid black; border-bottom: 2px solid black; padding: 10px 5px; margin-bottom: 0; font-size: 16px; }
         
         .pdf-tabla { width: 100%; border-collapse: collapse; text-align: left; }
-        .pdf-tabla th, .pdf-tabla td { border: 2px solid black; padding: 8px; font-size: 14px; }
+        .pdf-tabla th, .pdf-tabla td { border: 2px solid black; padding: 8px; font-size: 15px; }
         .pdf-tabla th { text-align: center; background-color: #f0f0f0; }
         .pdf-tabla td:nth-child(1), .pdf-tabla td:nth-child(3), .pdf-tabla td:nth-child(4) { text-align: center; }
         
         .pdf-footer { display: flex; justify-content: flex-end; border-top: 2px solid black; margin-top: 0; }
         .pdf-footer-total { display: flex; padding: 0; }
-        .pdf-footer-total span { padding: 10px; font-size: 18px; font-weight: bold; }
-        .pdf-footer-total-num { border-left: 2px solid black; width: 150px; text-align: right; padding: 10px; font-size: 18px; font-weight: bold; }
-
+        .pdf-footer-total span { padding: 10px; font-size: 20px; font-weight: bold; }
+        .pdf-footer-total-num { border-left: 2px solid black; width: 150px; text-align: right; padding: 10px; font-size: 20px; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <header>HerreríaValan</header>
 
-    <!-- PANTALLA 1: DASHBOARD -->
     <main id="panel-dashboard" class="pantalla activa">
         <h2>Resumen</h2>
-        <div class="tarjeta">
-            <p>Bienvenido. Usá el menú de abajo para navegar.</p>
-        </div>
+        <div class="tarjeta"><p>Bienvenido. Usá el menú de abajo para navegar.</p></div>
     </main>
 
-    <!-- PANTALLA 2: COTIZACIONES -->
     <main id="panel-cotizaciones" class="pantalla">
         <h2>Crear Presupuesto</h2>
         <div class="tarjeta">
             <input type="text" id="p-cliente" class="input-form" placeholder="Nombre del cliente (Señor/es)">
             <input type="text" id="p-direccion" class="input-form" placeholder="Dirección">
-            
             <hr style="margin: 15px 0; border: 0.5px solid #cbd5e1;">
-            
             <h3 style="font-size: 1rem;">Detalle de Trabajos y Materiales</h3>
-            <div id="contenedor-items">
-                <!-- Acá se agregan las filas con JavaScript -->
-            </div>
-            
+            <div id="contenedor-items"></div>
             <button class="btn-secundario" onclick="agregarFilaItem()">+ Agregar Ítem</button>
-            
-            <div class="total-box">
-                Total Presupuesto: $<span id="suma-total-pantalla">0</span>
-            </div>
-            
+            <div class="total-box">Total Presupuesto: $<span id="suma-total-pantalla">0</span></div>
             <button class="btn-principal" onclick="guardarPresupuesto()">Guardar Presupuesto</button>
         </div>
 
         <h2 style="margin-top: 10px;">Presupuestos Enviados</h2>
-        <div id="lista-presupuestos">
-            <!-- Aquí se cargarán los presupuestos guardados -->
-        </div>
+        <div id="lista-presupuestos"></div>
     </main>
 
-    <!-- PANTALLA 3: CLIENTES -->
-    <main id="panel-clientes" class="pantalla">
-        <h2>Clientes</h2>
-        <div class="tarjeta"><p>En construcción...</p></div>
-    </main>
+    <main id="panel-clientes" class="pantalla"><h2>Clientes</h2><div class="tarjeta"><p>En construcción...</p></div></main>
+    <main id="panel-produccion" class="pantalla"><h2>Taller</h2><div class="tarjeta"><p>En construcción...</p></div></main>
 
-    <!-- PANTALLA 4: PRODUCCIÓN -->
-    <main id="panel-produccion" class="pantalla">
-        <h2>Taller</h2>
-        <div class="tarjeta"><p>En construcción...</p></div>
-    </main>
-
-    <!-- MENU INFERIOR -->
     <nav class="nav-inferior">
         <button class="nav-btn activo" onclick="cambiarPantalla('panel-dashboard', this)"><span class="icono">📊</span><span>Inicio</span></button>
         <button class="nav-btn" onclick="cambiarPantalla('panel-cotizaciones', this)"><span class="icono">📝</span><span>Cotizar</span></button>
@@ -182,23 +130,19 @@
         <button class="nav-btn" onclick="cambiarPantalla('panel-produccion', this)"><span class="icono">🛠️</span><span>Taller</span></button>
     </nav>
 
-    <!-- PLANTILLA OCULTA PARA EL PDF (Fuera de las pantallas para que no interfiera el diseño) -->
-    <div id="plantilla-pdf">
+    <!-- PLANTILLA OCULTA PARA LA IMAGEN -->
+    <div id="plantilla-export">
         <div class="pdf-borde">
             <div class="pdf-header">
                 <div class="pdf-logo-titulo">
                     <img src="logo.jpg" alt="Logo Herrería">
-                    <div>
-                        <h1 style="margin:0; font-size: 28px;">HERRERÍAVALAN</h1>
-                    </div>
+                    <div><h1 style="margin:0; font-size: 28px;">HERRERÍAVALAN</h1></div>
                 </div>
                 <div class="pdf-fechas">
                     <div style="font-weight: bold; font-size: 18px;">PRESUPUESTO</div>
                     <div style="font-size: 12px;">Fecha</div>
                     <div class="pdf-cuadros-fecha">
-                        <div id="pdf-dia"></div>
-                        <div id="pdf-mes"></div>
-                        <div id="pdf-anio"></div>
+                        <div id="pdf-dia"></div><div id="pdf-mes"></div><div id="pdf-anio"></div>
                     </div>
                     <div style="font-size: 9px; margin-top: 5px;">DOCUMENTO NO VÁLIDO COMO FACTURA</div>
                 </div>
@@ -207,8 +151,8 @@
             <div class="pdf-info-empresa">
                 Frente Rejas - Escaleras - Puertas - Portones - Ventanas - Parrillas<br>
                 Barandas - Soldaduras - Herrería en General<br>
-                <span style="font-size: 14px; font-weight: normal;">Cel.: 091298873</span><br>
-                <span style="font-size: 14px; font-weight: normal;">Calle Punta del Este 1588 - Salto</span>
+                <span style="font-weight: normal;">Cel.: 091298873</span><br>
+                <span style="font-weight: normal;">Calle Punta del Este 1588 - Salto</span>
             </div>
 
             <div class="pdf-cliente-info">
@@ -218,23 +162,13 @@
 
             <table class="pdf-tabla" id="pdf-tabla-items">
                 <thead>
-                    <tr>
-                        <th style="width: 10%;">CANT.</th>
-                        <th style="width: 50%;">DETALLE</th>
-                        <th style="width: 20%;">P. UNIT.</th>
-                        <th style="width: 20%;">IMPORTE</th>
-                    </tr>
+                    <tr><th style="width: 10%;">CANT.</th><th style="width: 50%;">DETALLE</th><th style="width: 20%;">P. UNIT.</th><th style="width: 20%;">IMPORTE</th></tr>
                 </thead>
-                <tbody>
-                    <!-- Las filas del PDF se llenan con JS -->
-                </tbody>
+                <tbody></tbody>
             </table>
 
             <div class="pdf-footer">
-                <div class="pdf-footer-total">
-                    <span>TOTAL $</span>
-                    <div class="pdf-footer-total-num" id="pdf-total">0</div>
-                </div>
+                <div class="pdf-footer-total"><span>TOTAL $</span><div class="pdf-footer-total-num" id="pdf-total">0</div></div>
             </div>
         </div>
     </div>
@@ -250,19 +184,14 @@
 
         let itemsActuales = [];
 
-        document.addEventListener('DOMContentLoaded', () => {
-            cargarPresupuestos();
-            agregarFilaItem(); 
-        });
+        document.addEventListener('DOMContentLoaded', () => { cargarPresupuestos(); agregarFilaItem(); });
 
         function agregarFilaItem() {
             const contenedor = document.getElementById('contenedor-items');
             const idFila = Date.now(); 
-            
             const div = document.createElement('div');
             div.className = 'fila-item';
             div.id = `fila-${idFila}`;
-            
             div.innerHTML = `
                 <input type="text" class="input-form item-detalle" placeholder="Detalle (Ej: Tubo 40x40)" onchange="calcularTotales()">
                 <input type="number" class="input-form item-cant" placeholder="Cant." min="1" value="1" oninput="calcularTotales()">
@@ -272,89 +201,56 @@
             contenedor.appendChild(div);
         }
 
-        function eliminarFila(idFila) {
-            const fila = document.getElementById(`fila-${idFila}`);
-            fila.remove();
-            calcularTotales();
-        }
+        function eliminarFila(idFila) { document.getElementById(`fila-${idFila}`).remove(); calcularTotales(); }
 
         function calcularTotales() {
-            itemsActuales = [];
-            let totalGeneral = 0;
-            
-            const filas = document.querySelectorAll('.fila-item');
-            filas.forEach(fila => {
+            itemsActuales = []; let totalGeneral = 0;
+            document.querySelectorAll('.fila-item').forEach(fila => {
                 const detalle = fila.querySelector('.item-detalle').value;
                 const cant = parseFloat(fila.querySelector('.item-cant').value) || 0;
                 const precio = parseFloat(fila.querySelector('.item-precio').value) || 0;
-                
-                const importe = cant * precio;
-                totalGeneral += importe;
-                
-                if (detalle !== "" || importe > 0) {
-                    itemsActuales.push({ cant, detalle, precio, importe });
-                }
+                const importe = cant * precio; totalGeneral += importe;
+                if (detalle !== "" || importe > 0) itemsActuales.push({ cant, detalle, precio, importe });
             });
-            
             document.getElementById('suma-total-pantalla').innerText = totalGeneral.toFixed(2);
         }
 
         function guardarPresupuesto() {
             calcularTotales(); 
-            
             let cliente = document.getElementById('p-cliente').value;
             let direccion = document.getElementById('p-direccion').value;
             let total = document.getElementById('suma-total-pantalla').innerText;
 
-            if(!cliente || itemsActuales.length === 0) {
-                alert("Ingresá el nombre del cliente y al menos un ítem con precio.");
-                return;
-            }
+            if(!cliente || itemsActuales.length === 0) { alert("Ingresá el nombre del cliente y al menos un ítem con precio."); return; }
 
-            const fechaActual = new Date();
-            
-            let nuevoPresupuesto = {
-                id: Date.now(),
-                fecha: fechaActual.toLocaleDateString('es-UY'),
-                dia: String(fechaActual.getDate()).padStart(2, '0'),
-                mes: String(fechaActual.getMonth() + 1).padStart(2, '0'),
-                anio: String(fechaActual.getFullYear()).slice(-2), 
-                cliente: cliente,
-                direccion: direccion,
-                items: itemsActuales,
-                total: total
+            const fecha = new Date();
+            let nuevo = {
+                id: Date.now(), fecha: fecha.toLocaleDateString('es-UY'), dia: String(fecha.getDate()).padStart(2, '0'),
+                mes: String(fecha.getMonth() + 1).padStart(2, '0'), anio: String(fecha.getFullYear()).slice(-2), 
+                cliente, direccion, items: itemsActuales, total
             };
 
             let presupuestos = JSON.parse(localStorage.getItem('presupuestos')) || [];
-            presupuestos.push(nuevoPresupuesto);
+            presupuestos.push(nuevo);
             localStorage.setItem('presupuestos', JSON.stringify(presupuestos));
 
-            document.getElementById('p-cliente').value = '';
-            document.getElementById('p-direccion').value = '';
-            document.getElementById('contenedor-items').innerHTML = '';
-            agregarFilaItem(); 
-            calcularTotales();
-
-            cargarPresupuestos();
+            document.getElementById('p-cliente').value = ''; document.getElementById('p-direccion').value = '';
+            document.getElementById('contenedor-items').innerHTML = ''; agregarFilaItem(); calcularTotales(); cargarPresupuestos();
             alert("¡Presupuesto guardado con éxito!");
         }
 
         function cargarPresupuestos() {
             let presupuestos = JSON.parse(localStorage.getItem('presupuestos')) || [];
-            let lista = document.getElementById('lista-presupuestos');
-            lista.innerHTML = '';
-
+            let lista = document.getElementById('lista-presupuestos'); lista.innerHTML = '';
             presupuestos.slice().reverse().forEach(p => {
-                let div = document.createElement('div');
-                div.className = 'tarjeta';
+                let div = document.createElement('div'); div.className = 'tarjeta';
                 div.innerHTML = `
                     <h3 style="margin-bottom: 2px;">${p.cliente}</h3>
                     <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 8px;">${p.fecha} - ${p.direccion}</p>
                     <p style="font-weight: bold; font-size: 1.1rem; margin-bottom: 10px;">Total: $${p.total}</p>
-                    
                     <div class="acciones-presupuesto">
                         <button class="btn-accion btn-whatsapp" onclick="enviarWhatsApp('${p.id}')">WhatsApp</button>
-                        <button class="btn-accion btn-pdf" onclick="descargarPDF('${p.id}')">PDF</button>
+                        <button class="btn-accion btn-img" onclick="descargarImagen('${p.id}')">Imagen</button>
                         <button class="btn-accion btn-borrar" onclick="borrarPresupuesto('${p.id}')">Borrar</button>
                     </div>
                 `;
@@ -366,12 +262,11 @@
             if(confirm("¿Estás seguro de borrar este presupuesto?")) {
                 let presupuestos = JSON.parse(localStorage.getItem('presupuestos')) || [];
                 presupuestos = presupuestos.filter(p => p.id != id);
-                localStorage.setItem('presupuestos', JSON.stringify(presupuestos));
-                cargarPresupuestos();
+                localStorage.setItem('presupuestos', JSON.stringify(presupuestos)); cargarPresupuestos();
             }
         }
 
-        function descargarPDF(id) {
+        function descargarImagen(id) {
             let presupuestos = JSON.parse(localStorage.getItem('presupuestos')) || [];
             let p = presupuestos.find(p => p.id == id);
             
@@ -382,54 +277,33 @@
             document.getElementById('pdf-anio').innerText = p.anio;
             document.getElementById('pdf-total').innerText = p.total;
             
-            const tbody = document.querySelector('#pdf-tabla-items tbody');
-            tbody.innerHTML = '';
-            
+            const tbody = document.querySelector('#pdf-tabla-items tbody'); tbody.innerHTML = '';
             p.items.forEach(item => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${item.cant}</td>
-                    <td>${item.detalle}</td>
-                    <td>$${item.precio}</td>
-                    <td>$${item.importe}</td>
-                `;
-                tbody.appendChild(tr);
+                tbody.innerHTML += `<tr><td>${item.cant}</td><td>${item.detalle}</td><td>$${item.precio}</td><td>$${item.importe}</td></tr>`;
             });
+            for(let i=0; i < (10 - p.items.length); i++) { tbody.innerHTML += `<tr><td>&nbsp;</td><td></td><td></td><td></td></tr>`; }
 
-            const filasFaltantes = 10 - p.items.length;
-            for(let i=0; i < filasFaltantes; i++) {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `<td>&nbsp;</td><td></td><td></td><td></td>`;
-                tbody.appendChild(tr);
-            }
-
-            let elemento = document.getElementById('plantilla-pdf');
+            let elemento = document.getElementById('plantilla-export');
             
-            // Forzamos el documento a la esquina (X=0, Y=0) para evitar que se corte la foto.
-            window.scrollTo(0, 0); 
-            elemento.classList.add('pdf-export-activo');
+            // Mostrar elemento de forma "invisible" para que la foto no salga en blanco ni cortada
+            elemento.style.display = 'block';
+            elemento.style.position = 'absolute';
+            elemento.style.top = window.scrollY + 'px'; 
+            elemento.style.left = '-9999px'; 
 
-            let opciones = {
-                margin:       10,
-                filename:     'Presupuesto_HerreriaValan_' + p.cliente.replace(/\s+/g, '_') + '.pdf',
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, scrollX: 0, scrollY: 0 }, // Arreglo del corte
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-
-            html2pdf().set(opciones).from(elemento).save().then(() => {
-                elemento.classList.remove('pdf-export-activo'); // Lo volvemos a ocultar
+            html2canvas(elemento, { scale: 2, useCORS: true }).then(canvas => {
+                let enlace = document.createElement('a');
+                enlace.download = 'Presupuesto_HerreriaValan_' + p.cliente.replace(/\s+/g, '_') + '.jpg';
+                enlace.href = canvas.toDataURL('image/jpeg', 0.9);
+                enlace.click();
+                elemento.style.display = 'none'; // Volver a ocultar
             });
         }
 
         function enviarWhatsApp(id) {
-            let presupuestos = JSON.parse(localStorage.getItem('presupuestos')) || [];
-            let p = presupuestos.find(p => p.id == id);
-            
-            let texto = `Hola ${p.cliente}, te envío el resumen de tu presupuesto de HerreríaValan.\n\n*Total:* $${p.total}\n\nSi necesitas ver el detalle de los materiales y medidas, avisame y te paso el documento completo en PDF. ¡Saludos!`;
-            
-            let url = `https://wa.me/?text=${encodeURIComponent(texto)}`;
-            window.open(url, '_blank');
+            let presupuestos = JSON.parse(localStorage.getItem('presupuestos')) || []; let p = presupuestos.find(p => p.id == id);
+            let texto = `Hola ${p.cliente}, te envío el resumen de tu presupuesto de HerreríaValan.\n\n*Total:* $${p.total}\n\nSi necesitas ver el detalle de los materiales, avisame y te paso la imagen del presupuesto. ¡Saludos!`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, '_blank');
         }
     </script>
 </body>

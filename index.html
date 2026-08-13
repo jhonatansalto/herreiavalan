@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <!-- Configuración para móviles: evita que se haga zoom al tocar y ajusta el tamaño -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <!-- Color de la barra de estado del celular -->
+    <meta name="theme-color" content="#1e293b">
+    
+    <!-- Etiquetas para que Safari (iPhone) y Chrome (Android) la reconozcan como App -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Herrería Avalán">
+    
+    <!-- Enlace al archivo manifest (necesario para anclar al inicio) -->
+    <link rel="manifest" href="manifest.json">
+    
+    <title>Herrería Avalán</title>
+
+    <style>
+        /* Diseño general adaptado a celulares */
+        :root {
+            --fondo: #f1f5f9;
+            --texto: #334155;
+            --primario: #0f172a; /* Azul oscuro industrial */
+            --acento: #ea580c; /* Naranja estilo soldadura/óxido */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--fondo);
+            color: var(--texto);
+            padding-bottom: 70px; /* Espacio para la barra inferior */
+        }
+
+        /* Cabecera superior */
+        header {
+            background-color: var(--primario);
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* Contenedor de las pantallas (secciones) */
+        .pantalla {
+            display: none; /* Oculta todas las pantallas por defecto */
+            padding: 20px;
+            animation: aparecer 0.3s ease-in-out;
+        }
+
+        .pantalla.activa {
+            display: block; /* Muestra solo la pantalla activa */
+        }
+
+        @keyframes aparecer {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Títulos de cada sección */
+        h2 {
+            margin-bottom: 15px;
+            color: var(--primario);
+            border-bottom: 2px solid var(--acento);
+            padding-bottom: 5px;
+            display: inline-block;
+        }
+
+        /* Estilo de las tarjetas de muestra */
+        .tarjeta {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        /* Barra de navegación inferior */
+        .nav-inferior {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background-color: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            z-index: 100;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 0.8rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 25%;
+        }
+
+        .nav-btn.activo {
+            color: var(--acento);
+            font-weight: bold;
+        }
+
+        /* Íconos (usamos emojis por ahora para hacerlo simple, luego podemos poner íconos reales) */
+        .icono {
+            font-size: 1.5rem;
+            margin-bottom: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        Herrería Avalán
+    </header>
+
+    <!-- PANTALLA 1: DASHBOARD -->
+    <main id="panel-dashboard" class="pantalla activa">
+        <h2>Resumen</h2>
+        <div class="tarjeta">
+            <h3>Trabajos Activos</h3>
+            <p style="font-size: 2rem; font-weight: bold; color: var(--acento);">4</p>
+        </div>
+        <div class="tarjeta">
+            <h3>Alertas de Stock</h3>
+            <p>🔴 Discos de corte bajos (Quedan 2)</p>
+        </div>
+    </main>
+
+    <!-- PANTALLA 2: COTIZACIONES -->
+    <main id="panel-cotizaciones" class="pantalla">
+        <h2>Presupuestos</h2>
+        <div class="tarjeta">
+            <p>Aquí irá la calculadora de materiales (hierro, chapas, gas, desperdicio).</p>
+        </div>
+    </main>
+
+    <!-- PANTALLA 3: CLIENTES -->
+    <main id="panel-clientes" class="pantalla">
+        <h2>Clientes y Proyectos</h2>
+        <div class="tarjeta">
+            <p>Aquí irá la lista de clientes y sus historiales.</p>
+        </div>
+    </main>
+
+    <!-- PANTALLA 4: PRODUCCIÓN -->
+    <main id="panel-produccion" class="pantalla">
+        <h2>Producción (Kanban)</h2>
+        <div class="tarjeta">
+            <p>Aquí irán las columnas: Pendiente, Corte, Soldadura, Pintura.</p>
+        </div>
+    </main>
+
+    <!-- MENU INFERIOR -->
+    <nav class="nav-inferior">
+        <button class="nav-btn activo" onclick="cambiarPantalla('panel-dashboard', this)">
+            <span class="icono">📊</span>
+            <span>Inicio</span>
+        </button>
+        <button class="nav-btn" onclick="cambiarPantalla('panel-cotizaciones', this)">
+            <span class="icono">📝</span>
+            <span>Cotizar</span>
+        </button>
+        <button class="nav-btn" onclick="cambiarPantalla('panel-clientes', this)">
+            <span class="icono">👥</span>
+            <span>Clientes</span>
+        </button>
+        <button class="nav-btn" onclick="cambiarPantalla('panel-produccion', this)">
+            <span class="icono">🛠️</span>
+            <span>Taller</span>
+        </button>
+    </nav>
+
+    <!-- LÓGICA DE LA APLICACIÓN (JavaScript) -->
+    <script>
+        // Función para cambiar entre las pantallas
+        function cambiarPantalla(idPantalla, botonPresionado) {
+            // 1. Ocultar todas las pantallas
+            let pantallas = document.querySelectorAll('.pantalla');
+            pantallas.forEach(function(pantalla) {
+                pantalla.classList.remove('activa');
+            });
+
+            // 2. Mostrar la pantalla solicitada
+            document.getElementById(idPantalla).classList.add('activa');
+
+            // 3. Quitar el color activo de todos los botones
+            let botones = document.querySelectorAll('.nav-btn');
+            botones.forEach(function(boton) {
+                boton.classList.remove('activo');
+            });
+
+            // 4. Poner el color activo al botón que se presionó
+            botonPresionado.classList.add('activo');
+        }
+    </script>
+</body>
+</html>

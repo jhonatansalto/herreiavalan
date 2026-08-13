@@ -22,18 +22,8 @@
             --acento: #ea580c; 
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: system-ui, -apple-system, sans-serif;
-        }
-
-        body {
-            background-color: var(--fondo);
-            color: var(--texto);
-            padding-bottom: 70px;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+        body { background-color: var(--fondo); color: var(--texto); padding-bottom: 70px; }
 
         header {
             background-color: var(--primario);
@@ -47,123 +37,75 @@
             z-index: 100;
         }
 
-        .pantalla {
-            display: none; 
-            padding: 20px;
-            animation: aparecer 0.3s ease-in-out;
-        }
+        .pantalla { display: none; padding: 20px; animation: aparecer 0.3s ease-in-out; }
+        .pantalla.activa { display: block; }
+        @keyframes aparecer { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .pantalla.activa {
-            display: block; 
-        }
-
-        @keyframes aparecer {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        h2 {
-            margin-bottom: 15px;
-            color: var(--primario);
-            border-bottom: 2px solid var(--acento);
-            padding-bottom: 5px;
-            display: inline-block;
-        }
-        
-        h3 {
-            margin-bottom: 10px;
-            color: var(--primario);
-        }
-
-        .tarjeta {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
+        h2 { margin-bottom: 15px; color: var(--primario); border-bottom: 2px solid var(--acento); padding-bottom: 5px; display: inline-block; }
+        .tarjeta { background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
 
         /* Estilos del Formulario */
-        .input-form {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 12px;
-            border: 1px solid #cbd5e1;
+        .input-form { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 1rem; }
+        
+        .fila-item {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr auto;
+            gap: 5px;
+            margin-bottom: 5px;
+            align-items: center;
+            background-color: #f8fafc;
+            padding: 10px;
             border-radius: 6px;
-            font-size: 1rem;
+            border: 1px solid #e2e8f0;
         }
+        
+        .fila-item input { margin-bottom: 0; padding: 8px; }
+        
+        /* Ocultar flechas de los inputs numéricos */
+        input[type="number"]::-webkit-inner-spin-button, 
+        input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        
+        .btn-principal { background-color: var(--primario); color: white; padding: 12px; border: none; border-radius: 6px; font-size: 1rem; font-weight: bold; width: 100%; cursor: pointer; margin-top: 10px; }
+        .btn-secundario { background-color: var(--acento); color: white; padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; margin-bottom: 15px; font-weight: bold; }
+        .btn-eliminar { background-color: #ef4444; color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer; font-weight: bold; height: 100%; }
 
-        textarea.input-form {
-            min-height: 80px;
-            resize: vertical;
-        }
+        .total-box { font-size: 1.2rem; font-weight: bold; text-align: right; padding: 10px 0; color: var(--primario); }
 
-        .btn-principal {
-            background-color: var(--primario);
-            color: white;
-            padding: 12px;
-            border: none;
-            border-radius: 6px;
-            font-size: 1rem;
-            font-weight: bold;
-            width: 100%;
-            cursor: pointer;
-        }
-
-        .acciones-presupuesto {
-            display: flex;
-            gap: 8px;
-            margin-top: 15px;
-        }
-
-        .btn-accion {
-            flex: 1;
-            padding: 8px;
-            border: none;
-            border-radius: 4px;
-            font-size: 0.85rem;
-            font-weight: bold;
-            color: white;
-            cursor: pointer;
-        }
-
+        .acciones-presupuesto { display: flex; gap: 8px; margin-top: 15px; }
+        .btn-accion { flex: 1; padding: 8px; border: none; border-radius: 4px; font-size: 0.85rem; font-weight: bold; color: white; cursor: pointer; }
         .btn-whatsapp { background-color: #25D366; }
         .btn-pdf { background-color: var(--acento); }
         .btn-borrar { background-color: #dc2626; }
 
         /* Barra de navegación inferior */
-        .nav-inferior {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            background-color: white;
-            display: flex;
-            justify-content: space-around;
-            padding: 10px 0;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
-            z-index: 100;
-        }
+        .nav-inferior { position: fixed; bottom: 0; width: 100%; background-color: white; display: flex; justify-content: space-around; padding: 10px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 100; }
+        .nav-btn { background: none; border: none; color: #94a3b8; font-size: 0.8rem; display: flex; flex-direction: column; align-items: center; width: 25%; }
+        .nav-btn.activo { color: var(--acento); font-weight: bold; }
+        .icono { font-size: 1.5rem; margin-bottom: 4px; }
 
-        .nav-btn {
-            background: none;
-            border: none;
-            color: #94a3b8;
-            font-size: 0.8rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 25%;
-        }
+        /* ESTILOS ESPECÍFICOS PARA EL PDF (Plantilla Oculta) */
+        #plantilla-pdf { display: none; padding: 20px; font-family: Arial, sans-serif; color: black; background: white; width: 800px; }
+        .pdf-borde { border: 2px solid black; padding: 2px; }
+        .pdf-header { display: flex; justify-content: space-between; border-bottom: 2px solid black; padding-bottom: 10px; margin-bottom: 10px; }
+        .pdf-logo-titulo { display: flex; align-items: center; gap: 15px; }
+        .pdf-logo-titulo img { width: 80px; height: 80px; object-fit: contain; }
+        .pdf-info-empresa { text-align: center; font-size: 12px; margin-bottom: 10px; font-weight: bold; }
+        .pdf-fechas { display: flex; flex-direction: column; align-items: center; }
+        .pdf-cuadros-fecha { display: flex; margin-top: 5px; }
+        .pdf-cuadros-fecha div { border: 2px solid black; width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; margin-left: -2px; font-weight: bold; }
+        .pdf-cliente-info { border-top: 2px solid black; border-bottom: 2px solid black; padding: 10px 5px; margin-bottom: 0; font-size: 14px; }
+        
+        .pdf-tabla { width: 100%; border-collapse: collapse; text-align: left; }
+        .pdf-tabla th, .pdf-tabla td { border: 2px solid black; padding: 8px; font-size: 14px; }
+        .pdf-tabla th { text-align: center; background-color: #f0f0f0; }
+        .pdf-tabla td:nth-child(1), .pdf-tabla td:nth-child(3), .pdf-tabla td:nth-child(4) { text-align: center; }
+        
+        .pdf-footer { display: flex; justify-content: space-between; border-top: 2px solid black; margin-top: 0; }
+        .pdf-footer-num { padding: 10px; font-size: 18px; font-weight: bold; border-right: 2px solid black; flex: 1; }
+        .pdf-footer-total { display: flex; padding: 0; }
+        .pdf-footer-total span { padding: 10px; font-size: 18px; font-weight: bold; }
+        .pdf-footer-total-num { border-left: 2px solid black; border-right: 2px solid black; width: 150px; text-align: right; padding: 10px; font-size: 18px; font-weight: bold; }
 
-        .nav-btn.activo {
-            color: var(--acento);
-            font-weight: bold;
-        }
-
-        .icono {
-            font-size: 1.5rem;
-            margin-bottom: 4px;
-        }
     </style>
 </head>
 <body>
@@ -178,15 +120,25 @@
         </div>
     </main>
 
-    <!-- PANTALLA 2: COTIZACIONES (MODIFICADA) -->
+    <!-- PANTALLA 2: COTIZACIONES -->
     <main id="panel-cotizaciones" class="pantalla">
         <h2>Crear Presupuesto</h2>
         <div class="tarjeta">
-            <input type="text" id="p-cliente" class="input-form" placeholder="Nombre del cliente">
+            <input type="text" id="p-cliente" class="input-form" placeholder="Nombre del cliente (Señor/es)">
             <input type="text" id="p-direccion" class="input-form" placeholder="Dirección">
-            <textarea id="p-materiales" class="input-form" placeholder="Materiales a utilizar (ej: tubos, discos, pintura...)"></textarea>
-            <input type="number" id="p-mano" class="input-form" placeholder="Mano de obra ($)">
-            <input type="number" id="p-total" class="input-form" placeholder="Total a cobrar ($)">
+            
+            <hr style="margin: 15px 0; border: 0.5px solid #cbd5e1;">
+            
+            <h3 style="font-size: 1rem;">Detalle de Trabajos y Materiales</h3>
+            <div id="contenedor-items">
+                <!-- Acá se agregan las filas con JavaScript -->
+            </div>
+            
+            <button class="btn-secundario" onclick="agregarFilaItem()">+ Agregar Ítem</button>
+            
+            <div class="total-box">
+                Total Presupuesto: $<span id="suma-total-pantalla">0</span>
+            </div>
             
             <button class="btn-principal" onclick="guardarPresupuesto()">Guardar Presupuesto</button>
         </div>
@@ -196,27 +148,61 @@
             <!-- Aquí se cargarán los presupuestos guardados -->
         </div>
 
-        <!-- PLANTILLA OCULTA PARA EL PDF -->
-        <div id="plantilla-pdf" style="display: none; padding: 30px; font-family: sans-serif; color: black; background: white;">
-            <h1 style="text-align: center; color: #ea580c; margin-bottom: 5px;">Herrería Avalán</h1>
-            <h3 style="text-align: center; margin-bottom: 30px; color: #334155;">Presupuesto de Trabajo</h3>
-            
-            <div style="margin-bottom: 20px; font-size: 1.1rem;">
-                <p><strong>Cliente:</strong> <span id="pdf-cliente"></span></p>
-                <p><strong>Dirección:</strong> <span id="pdf-direccion"></span></p>
-                <p><strong>Fecha:</strong> <span id="pdf-fecha"></span></p>
-            </div>
-            
-            <hr style="border: 1px solid #cbd5e1; margin: 20px 0;">
-            
-            <h4 style="margin-bottom: 10px;">Detalle de materiales:</h4>
-            <p id="pdf-materiales" style="white-space: pre-line; margin-bottom: 20px; font-size: 1rem; color: #334155;"></p>
-            
-            <hr style="border: 1px solid #cbd5e1; margin: 20px 0;">
-            
-            <div style="font-size: 1.1rem;">
-                <p><strong>Mano de obra:</strong> $<span id="pdf-mano"></span></p>
-                <h2 style="margin-top: 15px; color: #0f172a;">Total presupuestado: $<span id="pdf-total"></span></h2>
+        <!-- PLANTILLA OCULTA PARA EL PDF (DISEÑO TALONARIO) -->
+        <div id="plantilla-pdf">
+            <div class="pdf-borde">
+                <div class="pdf-header">
+                    <div class="pdf-logo-titulo">
+                        <img src="logo.jpg" alt="Logo Herrería">
+                        <div>
+                            <h1 style="margin:0; font-size: 28px;">HERRERÍA AVALÁN</h1>
+                        </div>
+                    </div>
+                    <div class="pdf-fechas">
+                        <div style="font-weight: bold; font-size: 18px;">PRESUPUESTO</div>
+                        <div style="font-size: 12px;">Fecha</div>
+                        <div class="pdf-cuadros-fecha">
+                            <div id="pdf-dia"></div>
+                            <div id="pdf-mes"></div>
+                            <div id="pdf-anio"></div>
+                        </div>
+                        <div style="font-size: 9px; margin-top: 5px;">DOCUMENTO NO VÁLIDO COMO FACTURA</div>
+                    </div>
+                </div>
+
+                <div class="pdf-info-empresa">
+                    Frente Rejas - Escaleras - Puertas - Portones - Ventanas - Parrillas<br>
+                    Barandas - Soldaduras - Herrería en General<br>
+                    <span style="font-size: 14px; font-weight: normal;">Cel.: [TU NÚMERO ACÁ]</span><br>
+                    <span style="font-size: 14px; font-weight: normal;">[TU DIRECCIÓN ACÁ] - Salto</span>
+                </div>
+
+                <div class="pdf-cliente-info">
+                    <strong>Señor/es:</strong> <span id="pdf-cliente"></span><br><br>
+                    <strong>Direccion:</strong> <span id="pdf-direccion"></span>
+                </div>
+
+                <table class="pdf-tabla" id="pdf-tabla-items">
+                    <thead>
+                        <tr>
+                            <th style="width: 10%;">CANT.</th>
+                            <th style="width: 50%;">DETALLE</th>
+                            <th style="width: 20%;">P. UNIT.</th>
+                            <th style="width: 20%;">IMPORTE</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Las filas del PDF se llenan con JS -->
+                    </tbody>
+                </table>
+
+                <div class="pdf-footer">
+                    <div class="pdf-footer-num">Nº <span id="pdf-numero">00000001</span></div>
+                    <div class="pdf-footer-total">
+                        <span>TOTAL $</span>
+                        <div class="pdf-footer-total-num" id="pdf-total">0</div>
+                    </div>
+                </div>
             </div>
         </div>
     </main>
@@ -235,23 +221,14 @@
 
     <!-- MENU INFERIOR -->
     <nav class="nav-inferior">
-        <button class="nav-btn activo" onclick="cambiarPantalla('panel-dashboard', this)">
-            <span class="icono">📊</span><span>Inicio</span>
-        </button>
-        <button class="nav-btn" onclick="cambiarPantalla('panel-cotizaciones', this)">
-            <span class="icono">📝</span><span>Cotizar</span>
-        </button>
-        <button class="nav-btn" onclick="cambiarPantalla('panel-clientes', this)">
-            <span class="icono">👥</span><span>Clientes</span>
-        </button>
-        <button class="nav-btn" onclick="cambiarPantalla('panel-produccion', this)">
-            <span class="icono">🛠️</span><span>Taller</span>
-        </button>
+        <button class="nav-btn activo" onclick="cambiarPantalla('panel-dashboard', this)"><span class="icono">📊</span><span>Inicio</span></button>
+        <button class="nav-btn" onclick="cambiarPantalla('panel-cotizaciones', this)"><span class="icono">📝</span><span>Cotizar</span></button>
+        <button class="nav-btn" onclick="cambiarPantalla('panel-clientes', this)"><span class="icono">👥</span><span>Clientes</span></button>
+        <button class="nav-btn" onclick="cambiarPantalla('panel-produccion', this)"><span class="icono">🛠️</span><span>Taller</span></button>
     </nav>
 
     <!-- LÓGICA DE LA APLICACIÓN -->
     <script>
-        // Cambiar entre pantallas
         function cambiarPantalla(idPantalla, botonPresionado) {
             document.querySelectorAll('.pantalla').forEach(p => p.classList.remove('activa'));
             document.getElementById(idPantalla).classList.add('activa');
@@ -259,29 +236,81 @@
             botonPresionado.classList.add('activo');
         }
 
-        // Cargar presupuestos al iniciar la app
-        document.addEventListener('DOMContentLoaded', cargarPresupuestos);
+        // --- LÓGICA DE LA CALCULADORA DE PRESUPUESTOS ---
+        let itemsActuales = [];
 
-        // Función para guardar los datos
+        document.addEventListener('DOMContentLoaded', () => {
+            cargarPresupuestos();
+            agregarFilaItem(); // Agrega una fila vacía por defecto al abrir
+        });
+
+        function agregarFilaItem() {
+            const contenedor = document.getElementById('contenedor-items');
+            const idFila = Date.now(); // ID único para la fila
+            
+            const div = document.createElement('div');
+            div.className = 'fila-item';
+            div.id = `fila-${idFila}`;
+            
+            div.innerHTML = `
+                <input type="text" class="input-form item-detalle" placeholder="Detalle (Ej: Tubo 40x40)" onchange="calcularTotales()">
+                <input type="number" class="input-form item-cant" placeholder="Cant." min="1" value="1" oninput="calcularTotales()">
+                <input type="number" class="input-form item-precio" placeholder="$ Unit." min="0" oninput="calcularTotales()">
+                <button class="btn-eliminar" onclick="eliminarFila(${idFila})">X</button>
+            `;
+            contenedor.appendChild(div);
+        }
+
+        function eliminarFila(idFila) {
+            const fila = document.getElementById(`fila-${idFila}`);
+            fila.remove();
+            calcularTotales();
+        }
+
+        function calcularTotales() {
+            itemsActuales = [];
+            let totalGeneral = 0;
+            
+            const filas = document.querySelectorAll('.fila-item');
+            filas.forEach(fila => {
+                const detalle = fila.querySelector('.item-detalle').value;
+                const cant = parseFloat(fila.querySelector('.item-cant').value) || 0;
+                const precio = parseFloat(fila.querySelector('.item-precio').value) || 0;
+                
+                const importe = cant * precio;
+                totalGeneral += importe;
+                
+                if (detalle !== "" || importe > 0) {
+                    itemsActuales.push({ cant, detalle, precio, importe });
+                }
+            });
+            
+            document.getElementById('suma-total-pantalla').innerText = totalGeneral.toFixed(2);
+        }
+
         function guardarPresupuesto() {
+            calcularTotales(); // Asegurar que tenemos la última info
+            
             let cliente = document.getElementById('p-cliente').value;
             let direccion = document.getElementById('p-direccion').value;
-            let materiales = document.getElementById('p-materiales').value;
-            let mano = document.getElementById('p-mano').value;
-            let total = document.getElementById('p-total').value;
+            let total = document.getElementById('suma-total-pantalla').innerText;
 
-            if(!cliente || !total) {
-                alert("Por favor, ingresá al menos el nombre del cliente y el total.");
+            if(!cliente || itemsActuales.length === 0) {
+                alert("Ingresá el nombre del cliente y al menos un ítem con precio.");
                 return;
             }
 
+            const fechaActual = new Date();
+            
             let nuevoPresupuesto = {
                 id: Date.now(),
-                fecha: new Date().toLocaleDateString('es-UY'),
+                fecha: fechaActual.toLocaleDateString('es-UY'),
+                dia: String(fechaActual.getDate()).padStart(2, '0'),
+                mes: String(fechaActual.getMonth() + 1).padStart(2, '0'),
+                anio: String(fechaActual.getFullYear()).slice(-2), // Últimos 2 dígitos del año
                 cliente: cliente,
                 direccion: direccion,
-                materiales: materiales,
-                mano: mano,
+                items: itemsActuales,
                 total: total
             };
 
@@ -292,21 +321,19 @@
             // Limpiar formulario
             document.getElementById('p-cliente').value = '';
             document.getElementById('p-direccion').value = '';
-            document.getElementById('p-materiales').value = '';
-            document.getElementById('p-mano').value = '';
-            document.getElementById('p-total').value = '';
+            document.getElementById('contenedor-items').innerHTML = '';
+            agregarFilaItem(); // Volver a poner una fila vacía
+            calcularTotales();
 
             cargarPresupuestos();
             alert("¡Presupuesto guardado con éxito!");
         }
 
-        // Mostrar los presupuestos guardados
         function cargarPresupuestos() {
             let presupuestos = JSON.parse(localStorage.getItem('presupuestos')) || [];
             let lista = document.getElementById('lista-presupuestos');
             lista.innerHTML = '';
 
-            // Los mostramos al revés para que el más nuevo salga primero
             presupuestos.slice().reverse().forEach(p => {
                 let div = document.createElement('div');
                 div.className = 'tarjeta';
@@ -325,7 +352,6 @@
             });
         }
 
-        // Borrar un presupuesto
         function borrarPresupuesto(id) {
             if(confirm("¿Estás seguro de borrar este presupuesto?")) {
                 let presupuestos = JSON.parse(localStorage.getItem('presupuestos')) || [];
@@ -335,43 +361,67 @@
             }
         }
 
-        // Generar y descargar PDF
         function descargarPDF(id) {
             let presupuestos = JSON.parse(localStorage.getItem('presupuestos')) || [];
             let p = presupuestos.find(p => p.id == id);
             
-            // Pasar los datos a la plantilla oculta
+            // Pasar los datos a la plantilla
             document.getElementById('pdf-cliente').innerText = p.cliente;
             document.getElementById('pdf-direccion').innerText = p.direccion;
-            document.getElementById('pdf-fecha').innerText = p.fecha;
-            document.getElementById('pdf-materiales').innerText = p.materiales;
-            document.getElementById('pdf-mano').innerText = p.mano;
+            document.getElementById('pdf-dia').innerText = p.dia;
+            document.getElementById('pdf-mes').innerText = p.mes;
+            document.getElementById('pdf-anio').innerText = p.anio;
             document.getElementById('pdf-total').innerText = p.total;
+            
+            // Generar número de presupuesto falso basado en el ID
+            let numPresupuesto = String(p.id).slice(-8);
+            document.getElementById('pdf-numero').innerText = numPresupuesto;
+
+            // Llenar la tabla de ítems
+            const tbody = document.querySelector('#pdf-tabla-items tbody');
+            tbody.innerHTML = '';
+            
+            p.items.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${item.cant}</td>
+                    <td>${item.detalle}</td>
+                    <td>$${item.precio}</td>
+                    <td>$${item.importe}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // Rellenar con filas vacías si son pocos ítems para mantener el diseño
+            const filasFaltantes = 10 - p.items.length;
+            for(let i=0; i < filasFaltantes; i++) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>&nbsp;</td><td></td><td></td><td></td>`;
+                tbody.appendChild(tr);
+            }
 
             let elemento = document.getElementById('plantilla-pdf');
-            elemento.style.display = 'block'; // Lo mostramos un segundo para la foto
+            elemento.style.display = 'block';
 
             let opciones = {
                 margin:       10,
-                filename:     'Presupuesto_' + p.cliente + '.pdf',
+                filename:     'Presupuesto_Avalan_' + p.cliente + '.pdf',
                 image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { scale: 2 },
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
             html2pdf().set(opciones).from(elemento).save().then(() => {
-                elemento.style.display = 'none'; // Lo volvemos a ocultar
+                elemento.style.display = 'none';
             });
         }
 
-        // Enviar mensaje a WhatsApp
         function enviarWhatsApp(id) {
             let presupuestos = JSON.parse(localStorage.getItem('presupuestos')) || [];
             let p = presupuestos.find(p => p.id == id);
             
-            let texto = `Hola ${p.cliente}, te envío el resumen de tu presupuesto de Herrería Avalán.\n\n*Dirección:* ${p.direccion}\n*Total:* $${p.total}\n\nSi necesitas ver el detalle de los materiales, avisame y te paso el PDF. ¡Saludos!`;
+            let texto = `Hola ${p.cliente}, te envío el resumen de tu presupuesto de Herrería Avalán.\n\n*Total:* $${p.total}\n\nSi necesitas ver el detalle de los materiales y medidas, avisame y te paso el documento completo en PDF. ¡Saludos!`;
             
-            // Abre WhatsApp con el mensaje cargado
             let url = `https://wa.me/?text=${encodeURIComponent(texto)}`;
             window.open(url, '_blank');
         }

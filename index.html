@@ -14,32 +14,15 @@
     <link rel="manifest" href="manifest.json">
     <title>HerreríaValan</title>
 
-    <!-- Librería para generar Imagen (Reemplaza a la del PDF) -->
+    <!-- Librería para generar Imagen -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
-        :root {
-            --fondo: #f1f5f9;
-            --texto: #334155;
-            --primario: #0f172a; 
-            --acento: #ea580c; 
-        }
-
+        :root { --fondo: #f1f5f9; --texto: #334155; --primario: #0f172a; --acento: #ea580c; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
         body { background-color: var(--fondo); color: var(--texto); padding-bottom: 70px; }
 
-        header {
-            background-color: var(--primario);
-            color: white;
-            padding: 15px 20px;
-            text-align: center;
-            font-size: 1.2rem;
-            font-weight: bold;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
+        header { background-color: var(--primario); color: white; padding: 15px 20px; text-align: center; font-size: 1.2rem; font-weight: bold; position: sticky; top: 0; z-index: 100; }
         .pantalla { display: none; padding: 20px; animation: aparecer 0.3s ease-in-out; }
         .pantalla.activa { display: block; }
         @keyframes aparecer { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -47,9 +30,7 @@
         h2 { margin-bottom: 15px; color: var(--primario); border-bottom: 2px solid var(--acento); padding-bottom: 5px; display: inline-block; }
         .tarjeta { background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
 
-        /* Estilos del Formulario */
         .input-form { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 1rem; }
-        
         .fila-item { display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 5px; margin-bottom: 5px; align-items: center; background-color: #f8fafc; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0; }
         .fila-item input { margin-bottom: 0; padding: 8px; }
         input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
@@ -70,9 +51,8 @@
         .nav-btn.activo { color: var(--acento); font-weight: bold; }
         .icono { font-size: 1.5rem; margin-bottom: 4px; }
 
-        /* ESTILOS DE LA IMAGEN EXPORTADA (Oculto por defecto) */
+        /* ESTILOS DE LA IMAGEN EXPORTADA */
         #plantilla-export { display: none; padding: 20px; font-family: Arial, sans-serif; color: black; background: white; width: 800px; }
-        
         .pdf-borde { border: 2px solid black; padding: 2px; }
         .pdf-header { display: flex; justify-content: space-between; border-bottom: 2px solid black; padding-bottom: 10px; margin-bottom: 10px; }
         .pdf-logo-titulo { display: flex; align-items: center; gap: 15px; }
@@ -100,7 +80,7 @@
 
     <main id="panel-dashboard" class="pantalla activa">
         <h2>Resumen</h2>
-        <div class="tarjeta"><p>Bienvenido. Usá el menú de abajo para navegar.</p></div>
+        <div class="tarjeta"><p>Bienvenido a la gestión sincronizada en la nube.</p></div>
     </main>
 
     <main id="panel-cotizaciones" class="pantalla">
@@ -111,23 +91,25 @@
             <hr style="margin: 15px 0; border: 0.5px solid #cbd5e1;">
             <h3 style="font-size: 1rem;">Detalle de Trabajos y Materiales</h3>
             <div id="contenedor-items"></div>
-            <button class="btn-secundario" onclick="agregarFilaItem()">+ Agregar Ítem</button>
+            <button class="btn-secundario" onclick="window.agregarFilaItem()">+ Agregar Ítem</button>
             <div class="total-box">Total Presupuesto: $<span id="suma-total-pantalla">0</span></div>
-            <button class="btn-principal" onclick="guardarPresupuesto()">Guardar Presupuesto</button>
+            <button class="btn-principal" onclick="window.guardarPresupuesto()" id="btn-guardar">Guardar Presupuesto</button>
         </div>
 
-        <h2 style="margin-top: 10px;">Presupuestos Enviados</h2>
-        <div id="lista-presupuestos"></div>
+        <h2 style="margin-top: 10px;">Presupuestos Enviados (Nube)</h2>
+        <div id="lista-presupuestos">
+            <div class="tarjeta"><p style="text-align: center;">Cargando presupuestos...</p></div>
+        </div>
     </main>
 
     <main id="panel-clientes" class="pantalla"><h2>Clientes</h2><div class="tarjeta"><p>En construcción...</p></div></main>
     <main id="panel-produccion" class="pantalla"><h2>Taller</h2><div class="tarjeta"><p>En construcción...</p></div></main>
 
     <nav class="nav-inferior">
-        <button class="nav-btn activo" onclick="cambiarPantalla('panel-dashboard', this)"><span class="icono">📊</span><span>Inicio</span></button>
-        <button class="nav-btn" onclick="cambiarPantalla('panel-cotizaciones', this)"><span class="icono">📝</span><span>Cotizar</span></button>
-        <button class="nav-btn" onclick="cambiarPantalla('panel-clientes', this)"><span class="icono">👥</span><span>Clientes</span></button>
-        <button class="nav-btn" onclick="cambiarPantalla('panel-produccion', this)"><span class="icono">🛠️</span><span>Taller</span></button>
+        <button class="nav-btn activo" onclick="window.cambiarPantalla('panel-dashboard', this)"><span class="icono">📊</span><span>Inicio</span></button>
+        <button class="nav-btn" onclick="window.cambiarPantalla('panel-cotizaciones', this)"><span class="icono">📝</span><span>Cotizar</span></button>
+        <button class="nav-btn" onclick="window.cambiarPantalla('panel-clientes', this)"><span class="icono">👥</span><span>Clientes</span></button>
+        <button class="nav-btn" onclick="window.cambiarPantalla('panel-produccion', this)"><span class="icono">🛠️</span><span>Taller</span></button>
     </nav>
 
     <!-- PLANTILLA OCULTA PARA LA IMAGEN -->
@@ -173,102 +155,172 @@
         </div>
     </div>
 
-    <!-- LÓGICA DE LA APLICACIÓN -->
-    <script>
-        function cambiarPantalla(idPantalla, botonPresionado) {
+    <!-- LÓGICA DE FIREBASE Y LA APLICACIÓN (Módulos modernos) -->
+    <script type="module">
+        // Importar funciones de Firebase V9
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy } 
+        from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+        // Tus llaves de conexión extraídas de la imagen
+        const firebaseConfig = {
+            apiKey: "AIzaSyDd6bMR8krKyVpT7vbO2TleS-KUcKwj06Q",
+            authDomain: "herreriavalan.firebaseapp.com",
+            projectId: "herreriavalan",
+            storageBucket: "herreriavalan.firebasestorage.app",
+            messagingSenderId: "53592767637",
+            appId: "1:53592767637:web:d0310594230817e1686f9c"
+        };
+
+        // Inicializar Firebase y la Base de Datos (Firestore)
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Variables globales necesarias
+        window.itemsActuales = [];
+        window.presupuestosNube = []; // Para tener los datos a mano para generar la imagen
+
+        // --- SISTEMA EN TIEMPO REAL (ESCUCHAR BASE DE DATOS) ---
+        const consultaOrdenada = query(collection(db, "presupuestos"), orderBy("id", "desc"));
+        
+        onSnapshot(consultaOrdenada, (snapshot) => {
+            window.presupuestosNube = [];
+            let lista = document.getElementById('lista-presupuestos');
+            lista.innerHTML = '';
+            
+            if(snapshot.empty) {
+                lista.innerHTML = '<div class="tarjeta"><p style="text-align: center; color: #64748b;">No hay presupuestos guardados aún.</p></div>';
+                return;
+            }
+
+            snapshot.forEach((docSnap) => {
+                let p = docSnap.data();
+                p.docId = docSnap.id; // Guardamos el ID real del documento en la nube
+                window.presupuestosNube.push(p);
+
+                let div = document.createElement('div');
+                div.className = 'tarjeta';
+                div.innerHTML = `
+                    <h3 style="margin-bottom: 2px;">${p.cliente}</h3>
+                    <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 8px;">${p.fecha} - ${p.direccion}</p>
+                    <p style="font-weight: bold; font-size: 1.1rem; margin-bottom: 10px;">Total: $${p.total}</p>
+                    <div class="acciones-presupuesto">
+                        <button class="btn-accion btn-whatsapp" onclick="window.enviarWhatsApp('${p.docId}')">WhatsApp</button>
+                        <button class="btn-accion btn-img" onclick="window.descargarImagen('${p.docId}')">Imagen</button>
+                        <button class="btn-accion btn-borrar" onclick="window.borrarPresupuesto('${p.docId}')">Borrar</button>
+                    </div>
+                `;
+                lista.appendChild(div);
+            });
+        });
+
+        // --- FUNCIONES DE INTERFAZ ---
+        window.cambiarPantalla = function(idPantalla, botonPresionado) {
             document.querySelectorAll('.pantalla').forEach(p => p.classList.remove('activa'));
             document.getElementById(idPantalla).classList.add('activa');
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('activo'));
             botonPresionado.classList.add('activo');
-        }
+        };
 
-        let itemsActuales = [];
-
-        document.addEventListener('DOMContentLoaded', () => { cargarPresupuestos(); agregarFilaItem(); });
-
-        function agregarFilaItem() {
+        window.agregarFilaItem = function() {
             const contenedor = document.getElementById('contenedor-items');
             const idFila = Date.now(); 
             const div = document.createElement('div');
             div.className = 'fila-item';
             div.id = `fila-${idFila}`;
             div.innerHTML = `
-                <input type="text" class="input-form item-detalle" placeholder="Detalle (Ej: Tubo 40x40)" onchange="calcularTotales()">
-                <input type="number" class="input-form item-cant" placeholder="Cant." min="1" value="1" oninput="calcularTotales()">
-                <input type="number" class="input-form item-precio" placeholder="$ Unit." min="0" oninput="calcularTotales()">
-                <button class="btn-eliminar" onclick="eliminarFila(${idFila})">X</button>
+                <input type="text" class="input-form item-detalle" placeholder="Detalle (Ej: Tubo 40x40)" onchange="window.calcularTotales()">
+                <input type="number" class="input-form item-cant" placeholder="Cant." min="1" value="1" oninput="window.calcularTotales()">
+                <input type="number" class="input-form item-precio" placeholder="$ Unit." min="0" oninput="window.calcularTotales()">
+                <button class="btn-eliminar" onclick="window.eliminarFila(${idFila})">X</button>
             `;
             contenedor.appendChild(div);
-        }
+        };
 
-        function eliminarFila(idFila) { document.getElementById(`fila-${idFila}`).remove(); calcularTotales(); }
+        window.eliminarFila = function(idFila) { 
+            document.getElementById(`fila-${idFila}`).remove(); 
+            window.calcularTotales(); 
+        };
 
-        function calcularTotales() {
-            itemsActuales = []; let totalGeneral = 0;
+        window.calcularTotales = function() {
+            window.itemsActuales = []; 
+            let totalGeneral = 0;
             document.querySelectorAll('.fila-item').forEach(fila => {
                 const detalle = fila.querySelector('.item-detalle').value;
                 const cant = parseFloat(fila.querySelector('.item-cant').value) || 0;
                 const precio = parseFloat(fila.querySelector('.item-precio').value) || 0;
-                const importe = cant * precio; totalGeneral += importe;
-                if (detalle !== "" || importe > 0) itemsActuales.push({ cant, detalle, precio, importe });
+                const importe = cant * precio; 
+                totalGeneral += importe;
+                if (detalle !== "" || importe > 0) window.itemsActuales.push({ cant, detalle, precio, importe });
             });
             document.getElementById('suma-total-pantalla').innerText = totalGeneral.toFixed(2);
-        }
+        };
 
-        function guardarPresupuesto() {
-            calcularTotales(); 
+        // --- FUNCIONES A LA NUBE (FIREBASE) ---
+        window.guardarPresupuesto = async function() {
+            window.calcularTotales(); 
             let cliente = document.getElementById('p-cliente').value;
             let direccion = document.getElementById('p-direccion').value;
             let total = document.getElementById('suma-total-pantalla').innerText;
+            let btnGuardar = document.getElementById('btn-guardar');
 
-            if(!cliente || itemsActuales.length === 0) { alert("Ingresá el nombre del cliente y al menos un ítem con precio."); return; }
+            if(!cliente || window.itemsActuales.length === 0) { 
+                alert("Ingresá el nombre del cliente y al menos un ítem con precio."); 
+                return; 
+            }
+
+            // Desactivar botón para no guardar dos veces por accidente
+            btnGuardar.disabled = true;
+            btnGuardar.innerText = "Guardando en la nube...";
 
             const fecha = new Date();
-            let nuevo = {
-                id: Date.now(), fecha: fecha.toLocaleDateString('es-UY'), dia: String(fecha.getDate()).padStart(2, '0'),
-                mes: String(fecha.getMonth() + 1).padStart(2, '0'), anio: String(fecha.getFullYear()).slice(-2), 
-                cliente, direccion, items: itemsActuales, total
+            let nuevoPresupuesto = {
+                id: Date.now(), 
+                fecha: fecha.toLocaleDateString('es-UY'), 
+                dia: String(fecha.getDate()).padStart(2, '0'),
+                mes: String(fecha.getMonth() + 1).padStart(2, '0'), 
+                anio: String(fecha.getFullYear()).slice(-2), 
+                cliente: cliente, 
+                direccion: direccion, 
+                items: window.itemsActuales, 
+                total: total
             };
 
-            let presupuestos = JSON.parse(localStorage.getItem('presupuestos')) || [];
-            presupuestos.push(nuevo);
-            localStorage.setItem('presupuestos', JSON.stringify(presupuestos));
-
-            document.getElementById('p-cliente').value = ''; document.getElementById('p-direccion').value = '';
-            document.getElementById('contenedor-items').innerHTML = ''; agregarFilaItem(); calcularTotales(); cargarPresupuestos();
-            alert("¡Presupuesto guardado con éxito!");
-        }
-
-        function cargarPresupuestos() {
-            let presupuestos = JSON.parse(localStorage.getItem('presupuestos')) || [];
-            let lista = document.getElementById('lista-presupuestos'); lista.innerHTML = '';
-            presupuestos.slice().reverse().forEach(p => {
-                let div = document.createElement('div'); div.className = 'tarjeta';
-                div.innerHTML = `
-                    <h3 style="margin-bottom: 2px;">${p.cliente}</h3>
-                    <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 8px;">${p.fecha} - ${p.direccion}</p>
-                    <p style="font-weight: bold; font-size: 1.1rem; margin-bottom: 10px;">Total: $${p.total}</p>
-                    <div class="acciones-presupuesto">
-                        <button class="btn-accion btn-whatsapp" onclick="enviarWhatsApp('${p.id}')">WhatsApp</button>
-                        <button class="btn-accion btn-img" onclick="descargarImagen('${p.id}')">Imagen</button>
-                        <button class="btn-accion btn-borrar" onclick="borrarPresupuesto('${p.id}')">Borrar</button>
-                    </div>
-                `;
-                lista.appendChild(div);
-            });
-        }
-
-        function borrarPresupuesto(id) {
-            if(confirm("¿Estás seguro de borrar este presupuesto?")) {
-                let presupuestos = JSON.parse(localStorage.getItem('presupuestos')) || [];
-                presupuestos = presupuestos.filter(p => p.id != id);
-                localStorage.setItem('presupuestos', JSON.stringify(presupuestos)); cargarPresupuestos();
+            try {
+                // Guardar en Firestore
+                await addDoc(collection(db, "presupuestos"), nuevoPresupuesto);
+                
+                // Limpiar todo después de éxito
+                document.getElementById('p-cliente').value = ''; 
+                document.getElementById('p-direccion').value = '';
+                document.getElementById('contenedor-items').innerHTML = ''; 
+                window.agregarFilaItem(); 
+                window.calcularTotales();
+                alert("¡Presupuesto guardado y sincronizado!");
+            } catch (error) {
+                console.error("Error al guardar en Firebase: ", error);
+                alert("Hubo un error al guardar. Revisa tu conexión a internet.");
+            } finally {
+                btnGuardar.disabled = false;
+                btnGuardar.innerText = "Guardar Presupuesto";
             }
-        }
+        };
 
-        function descargarImagen(id) {
-            let presupuestos = JSON.parse(localStorage.getItem('presupuestos')) || [];
-            let p = presupuestos.find(p => p.id == id);
+        window.borrarPresupuesto = async function(docId) {
+            if(confirm("¿Estás seguro de borrar este presupuesto de todos los dispositivos?")) {
+                try {
+                    await deleteDoc(doc(db, "presupuestos", docId));
+                } catch(error) {
+                    console.error("Error al borrar: ", error);
+                    alert("No se pudo borrar el presupuesto.");
+                }
+            }
+        };
+
+        // --- FUNCIONES EXPORTAR E IMAGEN ---
+        window.descargarImagen = function(docId) {
+            let p = window.presupuestosNube.find(p => p.docId === docId);
+            if(!p) return;
             
             document.getElementById('pdf-cliente').innerText = p.cliente;
             document.getElementById('pdf-direccion').innerText = p.direccion;
@@ -284,8 +336,6 @@
             for(let i=0; i < (10 - p.items.length); i++) { tbody.innerHTML += `<tr><td>&nbsp;</td><td></td><td></td><td></td></tr>`; }
 
             let elemento = document.getElementById('plantilla-export');
-            
-            // Mostrar elemento de forma "invisible" para que la foto no salga en blanco ni cortada
             elemento.style.display = 'block';
             elemento.style.position = 'absolute';
             elemento.style.top = window.scrollY + 'px'; 
@@ -296,15 +346,19 @@
                 enlace.download = 'Presupuesto_HerreriaValan_' + p.cliente.replace(/\s+/g, '_') + '.jpg';
                 enlace.href = canvas.toDataURL('image/jpeg', 0.9);
                 enlace.click();
-                elemento.style.display = 'none'; // Volver a ocultar
+                elemento.style.display = 'none'; 
             });
-        }
+        };
 
-        function enviarWhatsApp(id) {
-            let presupuestos = JSON.parse(localStorage.getItem('presupuestos')) || []; let p = presupuestos.find(p => p.id == id);
+        window.enviarWhatsApp = function(docId) {
+            let p = window.presupuestosNube.find(p => p.docId === docId);
+            if(!p) return;
             let texto = `Hola ${p.cliente}, te envío el resumen de tu presupuesto de HerreríaValan.\n\n*Total:* $${p.total}\n\nSi necesitas ver el detalle de los materiales, avisame y te paso la imagen del presupuesto. ¡Saludos!`;
             window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, '_blank');
-        }
+        };
+
+        // Inicializar la primera fila vacía al cargar la app
+        window.agregarFilaItem();
     </script>
 </body>
 </html>

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#1e293b">
     
-    <!-- Configuración clave para que funcione como App en iOS (iPhone) -->
+    <!-- Configuración para App iOS (iPhone) -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="HerreríaValan">
@@ -64,7 +64,6 @@
         
         .fila-item input { margin-bottom: 0; padding: 8px; }
         
-        /* Ocultar flechas de los inputs numéricos */
         input[type="number"]::-webkit-inner-spin-button, 
         input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         
@@ -86,8 +85,20 @@
         .nav-btn.activo { color: var(--acento); font-weight: bold; }
         .icono { font-size: 1.5rem; margin-bottom: 4px; }
 
-        /* ESTILOS ESPECÍFICOS PARA EL PDF (Plantilla Oculta) */
+        /* ESTILOS DEL PDF (Oculto por defecto) */
         #plantilla-pdf { display: none; padding: 20px; font-family: Arial, sans-serif; color: black; background: white; width: 800px; }
+        
+        /* CLASE CLAVE PARA EVITAR RECORTES EN PC Y CELULAR */
+        .pdf-export-activo {
+            display: block !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 800px !important;
+            background-color: white !important;
+            z-index: 99999 !important;
+        }
+
         .pdf-borde { border: 2px solid black; padding: 2px; }
         .pdf-header { display: flex; justify-content: space-between; border-bottom: 2px solid black; padding-bottom: 10px; margin-bottom: 10px; }
         .pdf-logo-titulo { display: flex; align-items: center; gap: 15px; }
@@ -149,63 +160,6 @@
         <div id="lista-presupuestos">
             <!-- Aquí se cargarán los presupuestos guardados -->
         </div>
-
-        <!-- PLANTILLA OCULTA PARA EL PDF (DISEÑO TALONARIO) -->
-        <div id="plantilla-pdf">
-            <div class="pdf-borde">
-                <div class="pdf-header">
-                    <div class="pdf-logo-titulo">
-                        <img src="logo.jpg" alt="Logo Herrería">
-                        <div>
-                            <h1 style="margin:0; font-size: 28px;">HERRERÍAVALAN</h1>
-                        </div>
-                    </div>
-                    <div class="pdf-fechas">
-                        <div style="font-weight: bold; font-size: 18px;">PRESUPUESTO</div>
-                        <div style="font-size: 12px;">Fecha</div>
-                        <div class="pdf-cuadros-fecha">
-                            <div id="pdf-dia"></div>
-                            <div id="pdf-mes"></div>
-                            <div id="pdf-anio"></div>
-                        </div>
-                        <div style="font-size: 9px; margin-top: 5px;">DOCUMENTO NO VÁLIDO COMO FACTURA</div>
-                    </div>
-                </div>
-
-                <div class="pdf-info-empresa">
-                    Frente Rejas - Escaleras - Puertas - Portones - Ventanas - Parrillas<br>
-                    Barandas - Soldaduras - Herrería en General<br>
-                    <span style="font-size: 14px; font-weight: normal;">Cel.: 091298873</span><br>
-                    <span style="font-size: 14px; font-weight: normal;">calle punta del este 1588 - Salto</span>
-                </div>
-
-                <div class="pdf-cliente-info">
-                    <strong>Señor/es:</strong> <span id="pdf-cliente"></span><br><br>
-                    <strong>Direccion:</strong> <span id="pdf-direccion"></span>
-                </div>
-
-                <table class="pdf-tabla" id="pdf-tabla-items">
-                    <thead>
-                        <tr>
-                            <th style="width: 10%;">CANT.</th>
-                            <th style="width: 50%;">DETALLE</th>
-                            <th style="width: 20%;">P. UNIT.</th>
-                            <th style="width: 20%;">IMPORTE</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Las filas del PDF se llenan con JS -->
-                    </tbody>
-                </table>
-
-                <div class="pdf-footer">
-                    <div class="pdf-footer-total">
-                        <span>TOTAL $</span>
-                        <div class="pdf-footer-total-num" id="pdf-total">0</div>
-                    </div>
-                </div>
-            </div>
-        </div>
     </main>
 
     <!-- PANTALLA 3: CLIENTES -->
@@ -227,6 +181,63 @@
         <button class="nav-btn" onclick="cambiarPantalla('panel-clientes', this)"><span class="icono">👥</span><span>Clientes</span></button>
         <button class="nav-btn" onclick="cambiarPantalla('panel-produccion', this)"><span class="icono">🛠️</span><span>Taller</span></button>
     </nav>
+
+    <!-- PLANTILLA OCULTA PARA EL PDF (Fuera de las pantallas para que no interfiera el diseño) -->
+    <div id="plantilla-pdf">
+        <div class="pdf-borde">
+            <div class="pdf-header">
+                <div class="pdf-logo-titulo">
+                    <img src="logo.jpg" alt="Logo Herrería">
+                    <div>
+                        <h1 style="margin:0; font-size: 28px;">HERRERÍAVALAN</h1>
+                    </div>
+                </div>
+                <div class="pdf-fechas">
+                    <div style="font-weight: bold; font-size: 18px;">PRESUPUESTO</div>
+                    <div style="font-size: 12px;">Fecha</div>
+                    <div class="pdf-cuadros-fecha">
+                        <div id="pdf-dia"></div>
+                        <div id="pdf-mes"></div>
+                        <div id="pdf-anio"></div>
+                    </div>
+                    <div style="font-size: 9px; margin-top: 5px;">DOCUMENTO NO VÁLIDO COMO FACTURA</div>
+                </div>
+            </div>
+
+            <div class="pdf-info-empresa">
+                Frente Rejas - Escaleras - Puertas - Portones - Ventanas - Parrillas<br>
+                Barandas - Soldaduras - Herrería en General<br>
+                <span style="font-size: 14px; font-weight: normal;">Cel.: 091298873</span><br>
+                <span style="font-size: 14px; font-weight: normal;">Calle Punta del Este 1588 - Salto</span>
+            </div>
+
+            <div class="pdf-cliente-info">
+                <strong>Señor/es:</strong> <span id="pdf-cliente"></span><br><br>
+                <strong>Direccion:</strong> <span id="pdf-direccion"></span>
+            </div>
+
+            <table class="pdf-tabla" id="pdf-tabla-items">
+                <thead>
+                    <tr>
+                        <th style="width: 10%;">CANT.</th>
+                        <th style="width: 50%;">DETALLE</th>
+                        <th style="width: 20%;">P. UNIT.</th>
+                        <th style="width: 20%;">IMPORTE</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Las filas del PDF se llenan con JS -->
+                </tbody>
+            </table>
+
+            <div class="pdf-footer">
+                <div class="pdf-footer-total">
+                    <span>TOTAL $</span>
+                    <div class="pdf-footer-total-num" id="pdf-total">0</div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- LÓGICA DE LA APLICACIÓN -->
     <script>
@@ -393,19 +404,21 @@
             }
 
             let elemento = document.getElementById('plantilla-pdf');
-            elemento.style.display = 'block';
+            
+            // Forzamos el documento a la esquina (X=0, Y=0) para evitar que se corte la foto.
+            window.scrollTo(0, 0); 
+            elemento.classList.add('pdf-export-activo');
 
-            // SOLUCIÓN AL CORTE EN CELULARES: windowWidth fuerza a la app a renderizar a 800px antes de hacer el PDF
             let opciones = {
                 margin:       10,
                 filename:     'Presupuesto_HerreriaValan_' + p.cliente.replace(/\s+/g, '_') + '.pdf',
                 image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, windowWidth: 800 }, 
+                html2canvas:  { scale: 2, scrollX: 0, scrollY: 0 }, // Arreglo del corte
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
             html2pdf().set(opciones).from(elemento).save().then(() => {
-                elemento.style.display = 'none';
+                elemento.classList.remove('pdf-export-activo'); // Lo volvemos a ocultar
             });
         }
 

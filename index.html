@@ -4,12 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#1e293b">
+    
+    <!-- Configuración clave para que funcione como App en iOS (iPhone) -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Herrería Avalán">
+    <meta name="apple-mobile-web-app-title" content="HerreríaValan">
+    <link rel="apple-touch-icon" href="logo.jpg">
     
     <link rel="manifest" href="manifest.json">
-    <title>Herrería Avalán</title>
+    <title>HerreríaValan</title>
 
     <!-- Librería para generar el PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -100,17 +103,16 @@
         .pdf-tabla th { text-align: center; background-color: #f0f0f0; }
         .pdf-tabla td:nth-child(1), .pdf-tabla td:nth-child(3), .pdf-tabla td:nth-child(4) { text-align: center; }
         
-        .pdf-footer { display: flex; justify-content: space-between; border-top: 2px solid black; margin-top: 0; }
-        .pdf-footer-num { padding: 10px; font-size: 18px; font-weight: bold; border-right: 2px solid black; flex: 1; }
+        .pdf-footer { display: flex; justify-content: flex-end; border-top: 2px solid black; margin-top: 0; }
         .pdf-footer-total { display: flex; padding: 0; }
         .pdf-footer-total span { padding: 10px; font-size: 18px; font-weight: bold; }
-        .pdf-footer-total-num { border-left: 2px solid black; border-right: 2px solid black; width: 150px; text-align: right; padding: 10px; font-size: 18px; font-weight: bold; }
+        .pdf-footer-total-num { border-left: 2px solid black; width: 150px; text-align: right; padding: 10px; font-size: 18px; font-weight: bold; }
 
     </style>
 </head>
 <body>
 
-    <header>Herrería Avalán</header>
+    <header>HerreríaValan</header>
 
     <!-- PANTALLA 1: DASHBOARD -->
     <main id="panel-dashboard" class="pantalla activa">
@@ -155,7 +157,7 @@
                     <div class="pdf-logo-titulo">
                         <img src="logo.jpg" alt="Logo Herrería">
                         <div>
-                            <h1 style="margin:0; font-size: 28px;">HERRERÍA AVALÁN</h1>
+                            <h1 style="margin:0; font-size: 28px;">HERRERÍAVALAN</h1>
                         </div>
                     </div>
                     <div class="pdf-fechas">
@@ -173,8 +175,8 @@
                 <div class="pdf-info-empresa">
                     Frente Rejas - Escaleras - Puertas - Portones - Ventanas - Parrillas<br>
                     Barandas - Soldaduras - Herrería en General<br>
-                    <span style="font-size: 14px; font-weight: normal;">Cel.: [TU NÚMERO ACÁ]</span><br>
-                    <span style="font-size: 14px; font-weight: normal;">[TU DIRECCIÓN ACÁ] - Salto</span>
+                    <span style="font-size: 14px; font-weight: normal;">Cel.: 091298873</span><br>
+                    <span style="font-size: 14px; font-weight: normal;">calle punta del este 1588 - Salto</span>
                 </div>
 
                 <div class="pdf-cliente-info">
@@ -197,7 +199,6 @@
                 </table>
 
                 <div class="pdf-footer">
-                    <div class="pdf-footer-num">Nº <span id="pdf-numero">00000001</span></div>
                     <div class="pdf-footer-total">
                         <span>TOTAL $</span>
                         <div class="pdf-footer-total-num" id="pdf-total">0</div>
@@ -236,17 +237,16 @@
             botonPresionado.classList.add('activo');
         }
 
-        // --- LÓGICA DE LA CALCULADORA DE PRESUPUESTOS ---
         let itemsActuales = [];
 
         document.addEventListener('DOMContentLoaded', () => {
             cargarPresupuestos();
-            agregarFilaItem(); // Agrega una fila vacía por defecto al abrir
+            agregarFilaItem(); 
         });
 
         function agregarFilaItem() {
             const contenedor = document.getElementById('contenedor-items');
-            const idFila = Date.now(); // ID único para la fila
+            const idFila = Date.now(); 
             
             const div = document.createElement('div');
             div.className = 'fila-item';
@@ -289,7 +289,7 @@
         }
 
         function guardarPresupuesto() {
-            calcularTotales(); // Asegurar que tenemos la última info
+            calcularTotales(); 
             
             let cliente = document.getElementById('p-cliente').value;
             let direccion = document.getElementById('p-direccion').value;
@@ -307,7 +307,7 @@
                 fecha: fechaActual.toLocaleDateString('es-UY'),
                 dia: String(fechaActual.getDate()).padStart(2, '0'),
                 mes: String(fechaActual.getMonth() + 1).padStart(2, '0'),
-                anio: String(fechaActual.getFullYear()).slice(-2), // Últimos 2 dígitos del año
+                anio: String(fechaActual.getFullYear()).slice(-2), 
                 cliente: cliente,
                 direccion: direccion,
                 items: itemsActuales,
@@ -318,11 +318,10 @@
             presupuestos.push(nuevoPresupuesto);
             localStorage.setItem('presupuestos', JSON.stringify(presupuestos));
 
-            // Limpiar formulario
             document.getElementById('p-cliente').value = '';
             document.getElementById('p-direccion').value = '';
             document.getElementById('contenedor-items').innerHTML = '';
-            agregarFilaItem(); // Volver a poner una fila vacía
+            agregarFilaItem(); 
             calcularTotales();
 
             cargarPresupuestos();
@@ -365,7 +364,6 @@
             let presupuestos = JSON.parse(localStorage.getItem('presupuestos')) || [];
             let p = presupuestos.find(p => p.id == id);
             
-            // Pasar los datos a la plantilla
             document.getElementById('pdf-cliente').innerText = p.cliente;
             document.getElementById('pdf-direccion').innerText = p.direccion;
             document.getElementById('pdf-dia').innerText = p.dia;
@@ -373,11 +371,6 @@
             document.getElementById('pdf-anio').innerText = p.anio;
             document.getElementById('pdf-total').innerText = p.total;
             
-            // Generar número de presupuesto falso basado en el ID
-            let numPresupuesto = String(p.id).slice(-8);
-            document.getElementById('pdf-numero').innerText = numPresupuesto;
-
-            // Llenar la tabla de ítems
             const tbody = document.querySelector('#pdf-tabla-items tbody');
             tbody.innerHTML = '';
             
@@ -392,7 +385,6 @@
                 tbody.appendChild(tr);
             });
 
-            // Rellenar con filas vacías si son pocos ítems para mantener el diseño
             const filasFaltantes = 10 - p.items.length;
             for(let i=0; i < filasFaltantes; i++) {
                 const tr = document.createElement('tr');
@@ -403,11 +395,12 @@
             let elemento = document.getElementById('plantilla-pdf');
             elemento.style.display = 'block';
 
+            // SOLUCIÓN AL CORTE EN CELULARES: windowWidth fuerza a la app a renderizar a 800px antes de hacer el PDF
             let opciones = {
                 margin:       10,
-                filename:     'Presupuesto_Avalan_' + p.cliente + '.pdf',
+                filename:     'Presupuesto_HerreriaValan_' + p.cliente.replace(/\s+/g, '_') + '.pdf',
                 image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2 },
+                html2canvas:  { scale: 2, windowWidth: 800 }, 
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
@@ -420,7 +413,7 @@
             let presupuestos = JSON.parse(localStorage.getItem('presupuestos')) || [];
             let p = presupuestos.find(p => p.id == id);
             
-            let texto = `Hola ${p.cliente}, te envío el resumen de tu presupuesto de Herrería Avalán.\n\n*Total:* $${p.total}\n\nSi necesitas ver el detalle de los materiales y medidas, avisame y te paso el documento completo en PDF. ¡Saludos!`;
+            let texto = `Hola ${p.cliente}, te envío el resumen de tu presupuesto de HerreríaValan.\n\n*Total:* $${p.total}\n\nSi necesitas ver el detalle de los materiales y medidas, avisame y te paso el documento completo en PDF. ¡Saludos!`;
             
             let url = `https://wa.me/?text=${encodeURIComponent(texto)}`;
             window.open(url, '_blank');

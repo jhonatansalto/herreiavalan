@@ -2,29 +2,24 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <!-- Configuración para móviles: evita que se haga zoom al tocar y ajusta el tamaño -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    
-    <!-- Color de la barra de estado del celular -->
     <meta name="theme-color" content="#1e293b">
-    
-    <!-- Etiquetas para que Safari (iPhone) y Chrome (Android) la reconozcan como App -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Herrería Avalán">
     
-    <!-- Enlace al archivo manifest (necesario para anclar al inicio) -->
     <link rel="manifest" href="manifest.json">
-    
     <title>Herrería Avalán</title>
 
+    <!-- Librería para generar el PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
     <style>
-        /* Diseño general adaptado a celulares */
         :root {
             --fondo: #f1f5f9;
             --texto: #334155;
-            --primario: #0f172a; /* Azul oscuro industrial */
-            --acento: #ea580c; /* Naranja estilo soldadura/óxido */
+            --primario: #0f172a; 
+            --acento: #ea580c; 
         }
 
         * {
@@ -37,10 +32,9 @@
         body {
             background-color: var(--fondo);
             color: var(--texto);
-            padding-bottom: 70px; /* Espacio para la barra inferior */
+            padding-bottom: 70px;
         }
 
-        /* Cabecera superior */
         header {
             background-color: var(--primario);
             color: white;
@@ -51,18 +45,16 @@
             position: sticky;
             top: 0;
             z-index: 100;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
-        /* Contenedor de las pantallas (secciones) */
         .pantalla {
-            display: none; /* Oculta todas las pantallas por defecto */
+            display: none; 
             padding: 20px;
             animation: aparecer 0.3s ease-in-out;
         }
 
         .pantalla.activa {
-            display: block; /* Muestra solo la pantalla activa */
+            display: block; 
         }
 
         @keyframes aparecer {
@@ -70,7 +62,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Títulos de cada sección */
         h2 {
             margin-bottom: 15px;
             color: var(--primario);
@@ -78,8 +69,12 @@
             padding-bottom: 5px;
             display: inline-block;
         }
+        
+        h3 {
+            margin-bottom: 10px;
+            color: var(--primario);
+        }
 
-        /* Estilo de las tarjetas de muestra */
         .tarjeta {
             background: white;
             padding: 15px;
@@ -87,6 +82,54 @@
             margin-bottom: 15px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
+
+        /* Estilos del Formulario */
+        .input-form {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        textarea.input-form {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .btn-principal {
+            background-color: var(--primario);
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: bold;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .acciones-presupuesto {
+            display: flex;
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .btn-accion {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+        }
+
+        .btn-whatsapp { background-color: #25D366; }
+        .btn-pdf { background-color: var(--acento); }
+        .btn-borrar { background-color: #dc2626; }
 
         /* Barra de navegación inferior */
         .nav-inferior {
@@ -117,7 +160,6 @@
             font-weight: bold;
         }
 
-        /* Íconos (usamos emojis por ahora para hacerlo simple, luego podemos poner íconos reales) */
         .icono {
             font-size: 1.5rem;
             margin-bottom: 4px;
@@ -126,88 +168,212 @@
 </head>
 <body>
 
-    <header>
-        Herrería Avalán
-    </header>
+    <header>Herrería Avalán</header>
 
     <!-- PANTALLA 1: DASHBOARD -->
     <main id="panel-dashboard" class="pantalla activa">
         <h2>Resumen</h2>
         <div class="tarjeta">
-            <h3>Trabajos Activos</h3>
-            <p style="font-size: 2rem; font-weight: bold; color: var(--acento);">4</p>
-        </div>
-        <div class="tarjeta">
-            <h3>Alertas de Stock</h3>
-            <p>🔴 Discos de corte bajos (Quedan 2)</p>
+            <p>Bienvenido. Usá el menú de abajo para navegar.</p>
         </div>
     </main>
 
-    <!-- PANTALLA 2: COTIZACIONES -->
+    <!-- PANTALLA 2: COTIZACIONES (MODIFICADA) -->
     <main id="panel-cotizaciones" class="pantalla">
-        <h2>Presupuestos</h2>
+        <h2>Crear Presupuesto</h2>
         <div class="tarjeta">
-            <p>Aquí irá la calculadora de materiales (hierro, chapas, gas, desperdicio).</p>
+            <input type="text" id="p-cliente" class="input-form" placeholder="Nombre del cliente">
+            <input type="text" id="p-direccion" class="input-form" placeholder="Dirección">
+            <textarea id="p-materiales" class="input-form" placeholder="Materiales a utilizar (ej: tubos, discos, pintura...)"></textarea>
+            <input type="number" id="p-mano" class="input-form" placeholder="Mano de obra ($)">
+            <input type="number" id="p-total" class="input-form" placeholder="Total a cobrar ($)">
+            
+            <button class="btn-principal" onclick="guardarPresupuesto()">Guardar Presupuesto</button>
+        </div>
+
+        <h2 style="margin-top: 10px;">Presupuestos Enviados</h2>
+        <div id="lista-presupuestos">
+            <!-- Aquí se cargarán los presupuestos guardados -->
+        </div>
+
+        <!-- PLANTILLA OCULTA PARA EL PDF -->
+        <div id="plantilla-pdf" style="display: none; padding: 30px; font-family: sans-serif; color: black; background: white;">
+            <h1 style="text-align: center; color: #ea580c; margin-bottom: 5px;">Herrería Avalán</h1>
+            <h3 style="text-align: center; margin-bottom: 30px; color: #334155;">Presupuesto de Trabajo</h3>
+            
+            <div style="margin-bottom: 20px; font-size: 1.1rem;">
+                <p><strong>Cliente:</strong> <span id="pdf-cliente"></span></p>
+                <p><strong>Dirección:</strong> <span id="pdf-direccion"></span></p>
+                <p><strong>Fecha:</strong> <span id="pdf-fecha"></span></p>
+            </div>
+            
+            <hr style="border: 1px solid #cbd5e1; margin: 20px 0;">
+            
+            <h4 style="margin-bottom: 10px;">Detalle de materiales:</h4>
+            <p id="pdf-materiales" style="white-space: pre-line; margin-bottom: 20px; font-size: 1rem; color: #334155;"></p>
+            
+            <hr style="border: 1px solid #cbd5e1; margin: 20px 0;">
+            
+            <div style="font-size: 1.1rem;">
+                <p><strong>Mano de obra:</strong> $<span id="pdf-mano"></span></p>
+                <h2 style="margin-top: 15px; color: #0f172a;">Total presupuestado: $<span id="pdf-total"></span></h2>
+            </div>
         </div>
     </main>
 
     <!-- PANTALLA 3: CLIENTES -->
     <main id="panel-clientes" class="pantalla">
-        <h2>Clientes y Proyectos</h2>
-        <div class="tarjeta">
-            <p>Aquí irá la lista de clientes y sus historiales.</p>
-        </div>
+        <h2>Clientes</h2>
+        <div class="tarjeta"><p>En construcción...</p></div>
     </main>
 
     <!-- PANTALLA 4: PRODUCCIÓN -->
     <main id="panel-produccion" class="pantalla">
-        <h2>Producción (Kanban)</h2>
-        <div class="tarjeta">
-            <p>Aquí irán las columnas: Pendiente, Corte, Soldadura, Pintura.</p>
-        </div>
+        <h2>Taller</h2>
+        <div class="tarjeta"><p>En construcción...</p></div>
     </main>
 
     <!-- MENU INFERIOR -->
     <nav class="nav-inferior">
         <button class="nav-btn activo" onclick="cambiarPantalla('panel-dashboard', this)">
-            <span class="icono">📊</span>
-            <span>Inicio</span>
+            <span class="icono">📊</span><span>Inicio</span>
         </button>
         <button class="nav-btn" onclick="cambiarPantalla('panel-cotizaciones', this)">
-            <span class="icono">📝</span>
-            <span>Cotizar</span>
+            <span class="icono">📝</span><span>Cotizar</span>
         </button>
         <button class="nav-btn" onclick="cambiarPantalla('panel-clientes', this)">
-            <span class="icono">👥</span>
-            <span>Clientes</span>
+            <span class="icono">👥</span><span>Clientes</span>
         </button>
         <button class="nav-btn" onclick="cambiarPantalla('panel-produccion', this)">
-            <span class="icono">🛠️</span>
-            <span>Taller</span>
+            <span class="icono">🛠️</span><span>Taller</span>
         </button>
     </nav>
 
-    <!-- LÓGICA DE LA APLICACIÓN (JavaScript) -->
+    <!-- LÓGICA DE LA APLICACIÓN -->
     <script>
-        // Función para cambiar entre las pantallas
+        // Cambiar entre pantallas
         function cambiarPantalla(idPantalla, botonPresionado) {
-            // 1. Ocultar todas las pantallas
-            let pantallas = document.querySelectorAll('.pantalla');
-            pantallas.forEach(function(pantalla) {
-                pantalla.classList.remove('activa');
-            });
-
-            // 2. Mostrar la pantalla solicitada
+            document.querySelectorAll('.pantalla').forEach(p => p.classList.remove('activa'));
             document.getElementById(idPantalla).classList.add('activa');
-
-            // 3. Quitar el color activo de todos los botones
-            let botones = document.querySelectorAll('.nav-btn');
-            botones.forEach(function(boton) {
-                boton.classList.remove('activo');
-            });
-
-            // 4. Poner el color activo al botón que se presionó
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('activo'));
             botonPresionado.classList.add('activo');
+        }
+
+        // Cargar presupuestos al iniciar la app
+        document.addEventListener('DOMContentLoaded', cargarPresupuestos);
+
+        // Función para guardar los datos
+        function guardarPresupuesto() {
+            let cliente = document.getElementById('p-cliente').value;
+            let direccion = document.getElementById('p-direccion').value;
+            let materiales = document.getElementById('p-materiales').value;
+            let mano = document.getElementById('p-mano').value;
+            let total = document.getElementById('p-total').value;
+
+            if(!cliente || !total) {
+                alert("Por favor, ingresá al menos el nombre del cliente y el total.");
+                return;
+            }
+
+            let nuevoPresupuesto = {
+                id: Date.now(),
+                fecha: new Date().toLocaleDateString('es-UY'),
+                cliente: cliente,
+                direccion: direccion,
+                materiales: materiales,
+                mano: mano,
+                total: total
+            };
+
+            let presupuestos = JSON.parse(localStorage.getItem('presupuestos')) || [];
+            presupuestos.push(nuevoPresupuesto);
+            localStorage.setItem('presupuestos', JSON.stringify(presupuestos));
+
+            // Limpiar formulario
+            document.getElementById('p-cliente').value = '';
+            document.getElementById('p-direccion').value = '';
+            document.getElementById('p-materiales').value = '';
+            document.getElementById('p-mano').value = '';
+            document.getElementById('p-total').value = '';
+
+            cargarPresupuestos();
+            alert("¡Presupuesto guardado con éxito!");
+        }
+
+        // Mostrar los presupuestos guardados
+        function cargarPresupuestos() {
+            let presupuestos = JSON.parse(localStorage.getItem('presupuestos')) || [];
+            let lista = document.getElementById('lista-presupuestos');
+            lista.innerHTML = '';
+
+            // Los mostramos al revés para que el más nuevo salga primero
+            presupuestos.slice().reverse().forEach(p => {
+                let div = document.createElement('div');
+                div.className = 'tarjeta';
+                div.innerHTML = `
+                    <h3 style="margin-bottom: 2px;">${p.cliente}</h3>
+                    <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 8px;">${p.fecha} - ${p.direccion}</p>
+                    <p style="font-weight: bold; font-size: 1.1rem; margin-bottom: 10px;">Total: $${p.total}</p>
+                    
+                    <div class="acciones-presupuesto">
+                        <button class="btn-accion btn-whatsapp" onclick="enviarWhatsApp('${p.id}')">WhatsApp</button>
+                        <button class="btn-accion btn-pdf" onclick="descargarPDF('${p.id}')">PDF</button>
+                        <button class="btn-accion btn-borrar" onclick="borrarPresupuesto('${p.id}')">Borrar</button>
+                    </div>
+                `;
+                lista.appendChild(div);
+            });
+        }
+
+        // Borrar un presupuesto
+        function borrarPresupuesto(id) {
+            if(confirm("¿Estás seguro de borrar este presupuesto?")) {
+                let presupuestos = JSON.parse(localStorage.getItem('presupuestos')) || [];
+                presupuestos = presupuestos.filter(p => p.id != id);
+                localStorage.setItem('presupuestos', JSON.stringify(presupuestos));
+                cargarPresupuestos();
+            }
+        }
+
+        // Generar y descargar PDF
+        function descargarPDF(id) {
+            let presupuestos = JSON.parse(localStorage.getItem('presupuestos')) || [];
+            let p = presupuestos.find(p => p.id == id);
+            
+            // Pasar los datos a la plantilla oculta
+            document.getElementById('pdf-cliente').innerText = p.cliente;
+            document.getElementById('pdf-direccion').innerText = p.direccion;
+            document.getElementById('pdf-fecha').innerText = p.fecha;
+            document.getElementById('pdf-materiales').innerText = p.materiales;
+            document.getElementById('pdf-mano').innerText = p.mano;
+            document.getElementById('pdf-total').innerText = p.total;
+
+            let elemento = document.getElementById('plantilla-pdf');
+            elemento.style.display = 'block'; // Lo mostramos un segundo para la foto
+
+            let opciones = {
+                margin:       10,
+                filename:     'Presupuesto_' + p.cliente + '.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2 },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opciones).from(elemento).save().then(() => {
+                elemento.style.display = 'none'; // Lo volvemos a ocultar
+            });
+        }
+
+        // Enviar mensaje a WhatsApp
+        function enviarWhatsApp(id) {
+            let presupuestos = JSON.parse(localStorage.getItem('presupuestos')) || [];
+            let p = presupuestos.find(p => p.id == id);
+            
+            let texto = `Hola ${p.cliente}, te envío el resumen de tu presupuesto de Herrería Avalán.\n\n*Dirección:* ${p.direccion}\n*Total:* $${p.total}\n\nSi necesitas ver el detalle de los materiales, avisame y te paso el PDF. ¡Saludos!`;
+            
+            // Abre WhatsApp con el mensaje cargado
+            let url = `https://wa.me/?text=${encodeURIComponent(texto)}`;
+            window.open(url, '_blank');
         }
     </script>
 </body>

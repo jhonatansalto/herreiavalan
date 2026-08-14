@@ -140,7 +140,8 @@
         <h2>Medidas de Obra</h2>
         <div class="tarjeta">
             <input type="text" id="m-cliente" class="input-form" placeholder="Nombre Cliente / Trabajo">
-            <input type="file" id="m-foto" accept="image/*" class="input-form" onchange="window.previsualizarFoto(this)">
+            <!-- FIX 1 y 2: Agregado capture="environment" para abrir la cámara directa -->
+            <input type="file" id="m-foto" accept="image/*" capture="environment" class="input-form" onchange="window.previsualizarFoto(this)">
             <img id="m-preview" class="img-preview" style="display:none">
             
             <div id="m-lista-medidas"></div>
@@ -179,23 +180,34 @@
 
     <!-- PANTALLA 4: VEHÍCULO -->
     <main id="panel-vehiculo" class="pantalla">
-        <h2>Control del Vehículo</h2>
+        <h2>Control Flota y Fletes</h2>
         <div id="alerta-aceite" class="tarjeta" style="display:none; background-color: #fef2f2; border: 1px solid #ef4444; color: #b91c1c; text-align: center; font-weight: bold;">
-            ⚠️ ¡Atención! Estás cerca de los 10.000 km desde el último cambio de aceite/filtros.
+            ⚠️ ¡Atención! Algún vehículo está cerca de los 10.000 km desde el último cambio de aceite/filtros.
         </div>
+        
         <div class="tarjeta">
-            <select id="v-tipo" class="input-form" onchange="window.cambiarTipoGastoVehiculo()">
+            <!-- FIX 3: Sistema de múltiples vehículos y Fletes -->
+            <select id="v-entidad" class="input-form" onchange="window.cambiarEntidadVehiculo()">
+                <option value="">Seleccionar Vehículo / Flete...</option>
+                <!-- Opciones cargadas desde BD -->
+            </select>
+
+            <select id="v-tipo" class="input-form" onchange="window.cambiarTipoGastoVehiculo()" style="display:none;">
                 <option value="combustible">⛽ Carga de Combustible</option>
                 <option value="repuesto">🔧 Repuesto / Taller</option>
             </select>
-            <input type="text" id="v-detalle" class="input-form" placeholder="Detalle (Ej: Aceite, Frenos)" style="display: none;">
+
+            <input type="text" id="v-detalle" class="input-form" placeholder="Detalle" style="display: none;">
+            
             <div style="display: flex; gap: 10px;">
-                <input type="number" id="v-costo" class="input-form" placeholder="Costo Total ($)">
-                <input type="number" id="v-km" class="input-form" placeholder="Kilometraje Actual">
+                <input type="number" id="v-costo" class="input-form" placeholder="Costo Total ($)" style="display: none;">
+                <input type="number" id="v-km" class="input-form" placeholder="Kilometraje Actual" style="display: none;">
             </div>
+            
             <button class="btn-principal" onclick="window.guardarGastoVehiculo()">Guardar Gasto</button>
         </div>
-        <h2 style="margin-top: 10px;">Historial del Vehículo</h2>
+        
+        <h2 style="margin-top: 10px;">Historial de Gastos</h2>
         <div id="lista-vehiculo"><div class="tarjeta"><p style="text-align: center;">Cargando historial...</p></div></div>
     </main>
 
@@ -204,7 +216,7 @@
         <button class="nav-btn activa" onclick="window.cambiarPantalla('panel-dashboard', this)"><span class="icono">📊</span><span>Inicio</span></button>
         <button class="nav-btn" onclick="window.cambiarPantalla('panel-cotizaciones', this)"><span class="icono">📝</span><span>Cotizar</span></button>
         <button class="nav-btn" onclick="window.cambiarPantalla('panel-empleados', this)"><span class="icono">👷</span><span>Personal</span></button>
-        <button class="nav-btn" onclick="window.cambiarPantalla('panel-vehiculo', this)"><span class="icono">🚚</span><span>Vehículo</span></button>
+        <button class="nav-btn" onclick="window.cambiarPantalla('panel-vehiculo', this)"><span class="icono">🚚</span><span>Vehículos</span></button>
     </nav>
 
     <!-- PLANTILLA OCULTA: PRESUPUESTO -->
@@ -415,16 +427,42 @@
             });
         });
 
-        // --- SISTEMA EN TIEMPO REAL: MEDIDAS DE OBRA ---
+        // --- SISTEMA EN TIEMPO REAL: MEDIDAS DE OBRA (CON COMPRESOR) ---
         window.fotoBase64 = "";
         window.previsualizarFoto = function(input) {
+            if (!input.files[0]) return;
+            const file = input.files[0];
             const reader = new FileReader();
-            reader.onload = (e) => {
-                window.fotoBase64 = e.target.result;
-                document.getElementById('m-preview').src = window.fotoBase64;
-                document.getElementById('m-preview').style.display = 'block';
+            
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    // COMPRESOR INVISIBLE: Limita el tamaño a 1000px y le baja el peso
+                    const canvas = document.createElement("canvas");
+                    const MAX_WIDTH = 1000;
+                    const MAX_HEIGHT = 1000;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+                    } else {
+                        if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+                    }
+                    
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext("2d");
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    window.fotoBase64 = canvas.toDataURL("image/jpeg", 0.7); // 0.7 es la compresión ideal
+                    
+                    document.getElementById('m-preview').src = window.fotoBase64;
+                    document.getElementById('m-preview').style.display = 'block';
+                };
+                img.src = event.target.result;
             };
-            if(input.files[0]) reader.readAsDataURL(input.files[0]);
+            reader.readAsDataURL(file);
         };
 
         window.agregarFilaMedida = function() {
@@ -486,13 +524,99 @@
             });
         });
 
-        // --- SISTEMA EN TIEMPO REAL: VEHÍCULO ---
+        // --- SISTEMA EN TIEMPO REAL: VEHÍCULOS Y FLETES ---
+        // Cargar lista dinámica de flota
+        onSnapshot(collection(db, "flota"), (snap) => {
+            let select = document.getElementById('v-entidad');
+            let opcionesHTML = `<option value="">Seleccionar Vehículo / Flete...</option>`;
+            snap.forEach(doc => {
+                opcionesHTML += `<option value="${doc.data().nombre}">🚗 ${doc.data().nombre}</option>`;
+            });
+            opcionesHTML += `<option value="flete">🚚 Flete a Terceros</option><option value="nuevo">➕ Agregar Nuevo Vehículo</option>`;
+            select.innerHTML = opcionesHTML;
+        });
+
+        window.cambiarEntidadVehiculo = async function() {
+            let val = document.getElementById('v-entidad').value;
+            let tipo = document.getElementById('v-tipo');
+            let det = document.getElementById('v-detalle');
+            let km = document.getElementById('v-km');
+            let costo = document.getElementById('v-costo');
+
+            if(val === 'nuevo') {
+                let nom = prompt("Nombre del nuevo vehículo (Ej: Camioneta Nissan):");
+                if(nom) { await addDoc(collection(db, "flota"), { nombre: nom }); }
+                document.getElementById('v-entidad').value = ""; // resetea para que lo vuelva a elegir
+                return;
+            }
+
+            if(val === 'flete') {
+                tipo.style.display = 'none';
+                km.style.display = 'none';
+                det.style.display = 'block';
+                det.placeholder = "Destino / Detalle del Flete";
+                costo.style.display = 'block';
+            } else if (val !== "") {
+                tipo.style.display = 'block';
+                km.style.display = 'block';
+                costo.style.display = 'block';
+                window.cambiarTipoGastoVehiculo(); 
+            } else {
+                tipo.style.display = 'none'; km.style.display = 'none'; det.style.display = 'none'; costo.style.display = 'none';
+            }
+        };
+
+        window.cambiarTipoGastoVehiculo = function() {
+            let entidad = document.getElementById('v-entidad').value;
+            if(entidad === 'flete') return;
+            
+            let tipo = document.getElementById('v-tipo').value;
+            let detalleInput = document.getElementById('v-detalle');
+            if(tipo === 'repuesto') { 
+                detalleInput.style.display = 'block'; 
+                detalleInput.placeholder = "Detalle (Ej: Aceite, Frenos)";
+            } else { 
+                detalleInput.style.display = 'none'; detalleInput.value = ''; 
+            }
+        };
+
+        window.guardarGastoVehiculo = async function() {
+            let entidad = document.getElementById('v-entidad').value;
+            if(!entidad || entidad === 'nuevo') { alert("Seleccioná un vehículo o Flete."); return; }
+            
+            let tipo = document.getElementById('v-tipo').value;
+            let detalle = document.getElementById('v-detalle').value || '';
+            let costo = parseFloat(document.getElementById('v-costo').value);
+            let km = parseFloat(document.getElementById('v-km').value) || 0;
+
+            if(!costo) { alert("Completá el costo."); return; }
+            if(entidad === 'flete' && !detalle) { alert("Escribí el destino o detalle del flete."); return; }
+            if(entidad !== 'flete' && tipo === 'repuesto' && !detalle) { alert("Escribí qué repuesto o arreglo se hizo."); return; }
+            if(entidad !== 'flete' && !km) { alert("Completá el kilometraje actual del vehículo."); return; }
+
+            let fechaObj = new Date();
+            await addDoc(collection(db, "vehiculo"), {
+                id: Date.now(), 
+                entidad: entidad,
+                tipo: entidad === 'flete' ? 'flete' : tipo, 
+                detalle: detalle, 
+                monto: costo, 
+                km: km,
+                fecha: fechaObj.toLocaleDateString('es-UY'), mes: fechaObj.getMonth() + 1, anio: fechaObj.getFullYear()
+            });
+
+            // DESCUENTO AUTOMÁTICO DE CAJA
+            await window.actualizarCaja('gasto', costo);
+
+            document.getElementById('v-costo').value = ''; document.getElementById('v-km').value = ''; document.getElementById('v-detalle').value = '';
+            alert("Gasto guardado y descontado de la caja correctamente.");
+        };
+
         const qVehiculo = query(collection(db, "vehiculo"), orderBy("id", "desc"));
         onSnapshot(qVehiculo, (snapshot) => {
             let lista = document.getElementById('lista-vehiculo');
             lista.innerHTML = '';
-            let maxKm = 0;
-            let ultimoKmAceite = 0;
+            let maxKm = 0; let ultimoKmAceite = 0;
 
             if(snapshot.empty) { lista.innerHTML = '<div class="tarjeta"><p style="text-align: center;">No hay gastos registrados.</p></div>'; }
 
@@ -504,15 +628,17 @@
                     if (v.km > ultimoKmAceite) ultimoKmAceite = v.km;
                 }
 
-                let icono = v.tipo === 'combustible' ? '⛽' : '🔧';
-                let titulo = v.tipo === 'combustible' ? 'Combustible' : v.detalle;
+                let esFlete = (v.tipo === 'flete' || v.entidad === 'flete');
+                let icono = esFlete ? '🚚' : (v.tipo === 'combustible' ? '⛽' : '🔧');
+                let titulo = esFlete ? `Flete: ${v.detalle}` : `${v.entidad} - ${v.tipo === 'combustible' ? 'Combustible' : v.detalle}`;
+                let subtitulo = esFlete ? `${v.fecha}` : `${v.fecha} | KM: ${v.km}`;
 
                 let div = document.createElement('div'); div.className = 'tarjeta';
                 div.innerHTML = `
                     <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                         <div>
                             <h3 style="margin-bottom: 2px;">${icono} ${titulo}</h3>
-                            <p style="font-size: 0.85rem; color: #64748b;">${v.fecha} | KM: ${v.km}</p>
+                            <p style="font-size: 0.85rem; color: #64748b;">${subtitulo}</p>
                         </div>
                         <p style="font-weight: bold; font-size: 1.1rem; color: #dc2626;">-$${v.monto}</p>
                     </div>
@@ -528,37 +654,16 @@
             }
         });
 
-        window.cambiarTipoGastoVehiculo = function() {
-            let tipo = document.getElementById('v-tipo').value;
-            let detalleInput = document.getElementById('v-detalle');
-            if(tipo === 'repuesto') { detalleInput.style.display = 'block'; } 
-            else { detalleInput.style.display = 'none'; detalleInput.value = ''; }
+        // --- SISTEMA EN TIEMPO REAL: PRESUPUESTOS Y COBRANZAS ---
+        window.cobrarPresupuesto = async function(docId, totalStr) {
+            let monto = parseFloat(totalStr);
+            if(confirm(`¿Marcar este trabajo como COBRADO?\n\nSe sumarán $${monto} automáticamente a la Caja (Ingresos y Monedero).`)) {
+                await window.actualizarCaja('ingreso', monto);
+                await updateDoc(doc(db, "presupuestos", docId), { cobrado: true });
+                alert("Trabajo cobrado y dinero sumado a la caja.");
+            }
         };
 
-        window.guardarGastoVehiculo = async function() {
-            let tipo = document.getElementById('v-tipo').value;
-            let detalle = document.getElementById('v-detalle').value || '';
-            let costo = parseFloat(document.getElementById('v-costo').value);
-            let km = parseFloat(document.getElementById('v-km').value);
-
-            if(!costo || !km) { alert("Completá el costo y el kilometraje."); return; }
-            if(tipo === 'repuesto' && !detalle) { alert("Escribí qué repuesto o arreglo se hizo."); return; }
-
-            let fecha = new Date();
-            await addDoc(collection(db, "vehiculo"), {
-                id: Date.now(), tipo, detalle, monto: costo, km,
-                fecha: fecha.toLocaleDateString('es-UY'), mes: fecha.getMonth() + 1, anio: fecha.getFullYear()
-            });
-
-            await window.actualizarCaja('gasto', costo);
-
-            document.getElementById('v-costo').value = '';
-            document.getElementById('v-km').value = '';
-            document.getElementById('v-detalle').value = '';
-            alert("Gasto guardado y descontado de la caja.");
-        };
-
-        // --- SISTEMA EN TIEMPO REAL: PRESUPUESTOS ---
         onSnapshot(query(collection(db, "presupuestos"), orderBy("id", "desc")), (snapshot) => {
             window.presupuestosNube = [];
             let lista = document.getElementById('lista-presupuestos');
@@ -568,11 +673,17 @@
             snapshot.forEach((docSnap) => {
                 let p = docSnap.data(); p.docId = docSnap.id; window.presupuestosNube.push(p);
                 let div = document.createElement('div'); div.className = 'tarjeta';
+                
+                let btnCobro = p.cobrado ? 
+                    `<span style="width:100%; text-align:center; color:var(--verde); font-weight:bold; padding:8px;">✅ Trabajo Cobrado</span>` : 
+                    `<button class="btn-accion btn-verde" onclick="window.cobrarPresupuesto('${p.docId}', '${p.total}')">Cobrar</button>`;
+
                 div.innerHTML = `
                     <h3 style="margin-bottom: 2px;">${p.cliente}</h3>
                     <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 8px;">${p.fecha} - ${p.direccion}</p>
                     <p style="font-weight: bold; font-size: 1.1rem; margin-bottom: 10px;">Total: $${p.total}</p>
                     <div class="acciones-presupuesto">
+                        ${btnCobro}
                         <button class="btn-accion btn-img" onclick="window.generarImagenYCompartir('${p.docId}', 'presupuesto')">Generar Imagen</button>
                         <button class="btn-accion btn-borrar" onclick="window.borrarDoc('${p.docId}', 'presupuestos')">Borrar</button>
                     </div>
@@ -603,7 +714,7 @@
             if(!cliente || window.itemsActuales.length === 0) { alert("Completá cliente e ítems."); return; }
             document.getElementById('btn-guardar').disabled = true;
             let f = new Date();
-            await addDoc(collection(db, "presupuestos"), { id: Date.now(), fecha: f.toLocaleDateString('es-UY'), dia: String(f.getDate()).padStart(2, '0'), mes: String(f.getMonth() + 1).padStart(2, '0'), anio: String(f.getFullYear()).slice(-2), cliente, direccion: dir, items: window.itemsActuales, total: t });
+            await addDoc(collection(db, "presupuestos"), { id: Date.now(), fecha: f.toLocaleDateString('es-UY'), dia: String(f.getDate()).padStart(2, '0'), mes: String(f.getMonth() + 1).padStart(2, '0'), anio: String(f.getFullYear()).slice(-2), cliente, direccion: dir, items: window.itemsActuales, total: t, cobrado: false });
             document.getElementById('p-cliente').value = ''; document.getElementById('p-direccion').value = ''; document.getElementById('contenedor-items').innerHTML = ''; window.agregarFilaItem(); window.calcularTotales();
             document.getElementById('btn-guardar').disabled = false; alert("Guardado!");
         };

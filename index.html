@@ -57,6 +57,13 @@
         .stat-box h4 { color: #64748b; font-size: 0.8rem; margin-bottom: 5px; }
         .stat-box p { font-size: 1.3rem; font-weight: bold; color: var(--primario); }
 
+        /* ESTILOS DEL MINI-HISTORIAL CON SCROLL */
+        .historial-box { max-height: 120px; overflow-y: auto; border: 1px solid #cbd5e1; border-radius: 6px; padding: 5px; margin-bottom: 10px; background-color: #f8fafc; }
+        .historial-item { display: flex; justify-content: space-between; align-items: center; padding: 5px; border-bottom: 1px solid #e2e8f0; font-size: 0.85rem; color: var(--texto); }
+        .historial-item:last-child { border-bottom: none; }
+        .btn-borrar-min { background: none; border: none; color: #ef4444; cursor: pointer; font-size: 1rem; padding: 0 5px; }
+        .btn-editar { background: none; border: none; cursor: pointer; font-size: 1.1rem; margin-left: 5px; }
+
         /* PLANTILLAS DE IMAGEN (OCULTAS) */
         .plantilla-export { display: none; padding: 20px; font-family: Arial, sans-serif; color: black; background: white; width: 800px; }
         .pdf-borde { border: 2px solid black; padding: 2px; }
@@ -118,7 +125,7 @@
         <div id="lista-presupuestos"><div class="tarjeta"><p style="text-align: center;">Cargando...</p></div></div>
     </main>
 
-    <!-- PANTALLA 3: EMPLEADOS (NUEVA) -->
+    <!-- PANTALLA 3: EMPLEADOS -->
     <main id="panel-empleados" class="pantalla">
         <h2>Personal del Taller</h2>
         <button class="btn-secundario" onclick="window.crearEmpleado()" style="width: 100%; margin-bottom: 10px;">+ Agregar Empleado</button>
@@ -255,24 +262,55 @@
 
             snapshot.forEach((docSnap) => {
                 let e = docSnap.data(); e.docId = docSnap.id; 
-                
-                // Asegurar que existan los arrays
                 e.horas = e.horas || []; e.adelantos = e.adelantos || []; e.premios = e.premios || [];
                 window.empleadosNube.push(e);
 
-                // Cálculos del empleado
                 let sumaHoras = e.horas.reduce((acc, h) => acc + h.cantidad, 0);
                 let plataHoras = sumaHoras * e.valorHora;
                 let sumaPremios = e.premios.reduce((acc, p) => acc + p.monto, 0);
                 let sumaAdelantos = e.adelantos.reduce((acc, a) => acc + a.monto, 0);
                 let saldoAPagar = (plataHoras + sumaPremios) - sumaAdelantos;
-
                 totalAdelantos += sumaAdelantos;
+
+                // Generar el mini-historial visual ordenado por fecha de creación (id)
+                let movimientos = [];
+                e.horas.forEach(h => movimientos.push({...h, tipo: 'hora'}));
+                e.adelantos.forEach(a => movimientos.push({...a, tipo: 'adelanto'}));
+                e.premios.forEach(p => movimientos.push({...p, tipo: 'premio'}));
+                movimientos.sort((a,b) => a.id - b.id);
+
+                let htmlHistorial = '';
+                if(movimientos.length === 0) {
+                    htmlHistorial = '<div class="historial-item" style="color: #94a3b8; justify-content: center;">Sin movimientos en la cuenta</div>';
+                } else {
+                    movimientos.forEach(m => {
+                        let texto = '';
+                        if(m.tipo === 'hora') texto = `⏱️ ${m.fecha}: ${m.cantidad} horas`;
+                        if(m.tipo === 'adelanto') texto = `💸 ${m.fecha}: Adelanto (-$${m.monto})`;
+                        if(m.tipo === 'premio') texto = `🎁 ${m.fecha}: Premio (+$${m.monto})`;
+                        
+                        htmlHistorial += `
+                            <div class="historial-item">
+                                <span>${texto}</span>
+                                <button class="btn-borrar-min" onclick="window.borrarMovimiento('${e.docId}', '${m.tipo}', ${m.id})">❌</button>
+                            </div>
+                        `;
+                    });
+                }
 
                 let div = document.createElement('div'); div.className = 'tarjeta';
                 div.innerHTML = `
-                    <h3 style="margin-bottom: 2px;">${e.nombre}</h3>
-                    <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 8px;">Valor hora: $${e.valorHora} | Horas acumuladas: ${sumaHoras}h</p>
+                    <h3 style="margin-bottom: 2px; display: flex; align-items: center;">
+                        ${e.nombre}
+                        <button class="btn-editar" onclick="window.editarValorHora('${e.docId}')" title="Editar valor hora">✏️</button>
+                    </h3>
+                    <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 12px;">Valor hora: $${e.valorHora} | Horas acumuladas: ${sumaHoras}h</p>
+                    
+                    <!-- CAJA DE HISTORIAL CON SCROLL -->
+                    <div class="historial-box">
+                        ${htmlHistorial}
+                    </div>
+
                     <p style="font-weight: bold; font-size: 1.3rem; margin-bottom: 10px; color: ${saldoAPagar < 0 ? '#dc2626' : 'var(--primario)'}">
                         Saldo a Pagar: $${saldoAPagar}
                     </p>
@@ -298,7 +336,6 @@
 
             snapshot.forEach((docSnap) => {
                 let pago = docSnap.data();
-                // Sumar solo si es del mes y año actual
                 if(pago.mes === mesActual && pago.anio === anioActual) {
                     totalPagadoMes += pago.totalPagado;
                 }
@@ -318,32 +355,48 @@
             });
         };
 
+        window.editarValorHora = async function(docId) {
+            let e = window.empleadosNube.find(x => x.docId === docId);
+            if(!e) return;
+            let nuevoValor = parseFloat(prompt(`Nuevo valor por hora para ${e.nombre}:`, e.valorHora));
+            if(nuevoValor && !isNaN(nuevoValor)) {
+                await updateDoc(doc(db, "empleados", docId), { valorHora: nuevoValor });
+            }
+        };
+
         window.cargarHoras = async function(docId) {
             let horas = parseFloat(prompt("¿Cuántas horas trabajó hoy?"));
             if(!horas || isNaN(horas)) return;
-            
             await updateDoc(doc(db, "empleados", docId), {
-                horas: arrayUnion({ fecha: new Date().toLocaleDateString('es-UY'), cantidad: horas })
+                horas: arrayUnion({ id: Date.now(), fecha: new Date().toLocaleDateString('es-UY'), cantidad: horas })
             });
         };
 
         window.darAdelanto = async function(docId) {
             let monto = parseFloat(prompt("Monto del adelanto en pesos:"));
             if(!monto || isNaN(monto)) return;
-            
             await updateDoc(doc(db, "empleados", docId), {
-                adelantos: arrayUnion({ fecha: new Date().toLocaleDateString('es-UY'), monto: monto })
+                adelantos: arrayUnion({ id: Date.now(), fecha: new Date().toLocaleDateString('es-UY'), monto: monto })
             });
         };
 
         window.darPremio = async function(docId) {
             let monto = parseFloat(prompt("Monto del premio/bono en pesos:"));
             if(!monto || isNaN(monto)) return;
-            let motivo = prompt("Motivo del premio (opcional):") || "Buen desempeño";
-            
             await updateDoc(doc(db, "empleados", docId), {
-                premios: arrayUnion({ fecha: new Date().toLocaleDateString('es-UY'), monto: monto, motivo: motivo })
+                premios: arrayUnion({ id: Date.now(), fecha: new Date().toLocaleDateString('es-UY'), monto: monto })
             });
+        };
+
+        window.borrarMovimiento = async function(docId, tipo, movId) {
+            if(!confirm("¿Seguro que querés borrar este registro?")) return;
+            let e = window.empleadosNube.find(x => x.docId === docId);
+            if(!e) return;
+
+            let campo = tipo === 'hora' ? 'horas' : (tipo === 'adelanto' ? 'adelantos' : 'premios');
+            let nuevoArray = e[campo].filter(x => x.id !== movId);
+
+            await updateDoc(doc(db, "empleados", docId), { [campo]: nuevoArray });
         };
 
         window.liquidarSueldo = async function(docId) {
@@ -356,7 +409,7 @@
             let sumaAdelantos = e.adelantos.reduce((acc, a) => acc + a.monto, 0);
             let saldoAPagar = (plataHoras + sumaPremios) - sumaAdelantos;
 
-            if(confirm(`Se le van a liquidar $${saldoAPagar} a ${e.nombre}.\nEsto dejará su cuenta en cero y guardará el historial. ¿Continuar?`)) {
+            if(confirm(`Se le van a liquidar $${saldoAPagar} a ${e.nombre}.\nEsto dejará su cuenta en cero, borrará el historial de la semana y descargará el recibo. ¿Continuar?`)) {
                 let fechaObj = new Date();
                 let datosPago = {
                     empleadoId: e.docId, nombreEmpleado: e.nombre,
@@ -368,18 +421,14 @@
                     totalPagado: saldoAPagar
                 };
 
-                // 1. Guardar en Historial (pagos_salarios)
+                // 1. Guardar en Historial
                 let nuevoPago = await addDoc(collection(db, "pagos_salarios"), datosPago);
 
-                // 2. Generar el Recibo en Imagen y descargar
+                // 2. Generar y descargar el Recibo en Imagen (Sin abrir WhatsApp)
                 window.descargarImagen(nuevoPago.id, 'recibo', datosPago, e.valorHora);
 
-                // 3. Poner en cero la cuenta del empleado en la base de datos
+                // 3. Poner en cero la cuenta y limpiar el historial visual
                 await updateDoc(doc(db, "empleados", docId), { horas: [], adelantos: [], premios: [] });
-
-                // 4. Mandar WhatsApp
-                let texto = `Hola ${e.nombre}, te paso la liquidación de la semana:\n\n*Horas trabajadas:* ${sumaHoras}h\n*Adelantos descontados:* $${sumaAdelantos}\n*LÍQUIDO PAGADO:* $${saldoAPagar}\n\n¡Gracias por tu laburo! Te pasé la imagen con el recibo detallado.`;
-                window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, '_blank');
             }
         };
 
@@ -410,7 +459,7 @@
                 nombreArchivo = 'Presupuesto_HerreriaValan_' + p.cliente.replace(/\s+/g, '_') + '.jpg';
             } 
             else if(tipo === 'recibo') {
-                let p = datosExtra; // Vienen pasados desde liquidarSueldo
+                let p = datosExtra; 
                 document.getElementById('recibo-empleado').innerText = p.nombreEmpleado;
                 document.getElementById('recibo-valor-hora').innerText = valorHora;
                 document.getElementById('recibo-dia').innerText = String(p.dia);

@@ -20,7 +20,11 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
         body { background-color: var(--fondo); color: var(--texto); padding-bottom: 70px; }
 
-        header { background-color: var(--primario); color: white; padding: 15px 20px; text-align: center; font-size: 1.2rem; font-weight: bold; position: sticky; top: 0; z-index: 100; }
+        /* NUEVO ENCABEZADO */
+        header { background-color: var(--primario); color: white; padding: 12px 20px; display: flex; align-items: center; gap: 15px; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.25); }
+        header img { width: 45px; height: 45px; border-radius: 8px; object-fit: contain; background: white; padding: 2px; }
+        header span { font-size: 1.5rem; font-weight: 800; letter-spacing: 0.5px; }
+
         .pantalla { display: none; padding: 20px; animation: aparecer 0.3s ease-in-out; }
         .pantalla.activa { display: block; }
         @keyframes aparecer { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -102,7 +106,10 @@
 </head>
 <body>
 
-    <header>Herrería Valan</header>
+    <header>
+        <img src="logo.jpg" alt="Logo">
+        <span>Herrería Valan</span>
+    </header>
 
     <!-- PANTALLA 1: INICIO (CAJA, AGENDA Y MEDIDAS) -->
     <main id="panel-dashboard" class="pantalla activa">
@@ -140,7 +147,6 @@
         <h2>Medidas de Obra</h2>
         <div class="tarjeta">
             <input type="text" id="m-cliente" class="input-form" placeholder="Nombre Cliente / Trabajo">
-            <!-- FIX 1 y 2: Agregado capture="environment" para abrir la cámara directa -->
             <input type="file" id="m-foto" accept="image/*" capture="environment" class="input-form" onchange="window.previsualizarFoto(this)">
             <img id="m-preview" class="img-preview" style="display:none">
             
@@ -186,7 +192,6 @@
         </div>
         
         <div class="tarjeta">
-            <!-- FIX 3: Sistema de múltiples vehículos y Fletes -->
             <select id="v-entidad" class="input-form" onchange="window.cambiarEntidadVehiculo()">
                 <option value="">Seleccionar Vehículo / Flete...</option>
                 <!-- Opciones cargadas desde BD -->
@@ -437,7 +442,6 @@
             reader.onload = function(event) {
                 const img = new Image();
                 img.onload = function() {
-                    // COMPRESOR INVISIBLE: Limita el tamaño a 1000px y le baja el peso
                     const canvas = document.createElement("canvas");
                     const MAX_WIDTH = 1000;
                     const MAX_HEIGHT = 1000;
@@ -455,7 +459,7 @@
                     const ctx = canvas.getContext("2d");
                     ctx.drawImage(img, 0, 0, width, height);
                     
-                    window.fotoBase64 = canvas.toDataURL("image/jpeg", 0.7); // 0.7 es la compresión ideal
+                    window.fotoBase64 = canvas.toDataURL("image/jpeg", 0.7);
                     
                     document.getElementById('m-preview').src = window.fotoBase64;
                     document.getElementById('m-preview').style.display = 'block';
@@ -525,7 +529,6 @@
         });
 
         // --- SISTEMA EN TIEMPO REAL: VEHÍCULOS Y FLETES ---
-        // Cargar lista dinámica de flota
         onSnapshot(collection(db, "flota"), (snap) => {
             let select = document.getElementById('v-entidad');
             let opcionesHTML = `<option value="">Seleccionar Vehículo / Flete...</option>`;
@@ -546,7 +549,7 @@
             if(val === 'nuevo') {
                 let nom = prompt("Nombre del nuevo vehículo (Ej: Camioneta Nissan):");
                 if(nom) { await addDoc(collection(db, "flota"), { nombre: nom }); }
-                document.getElementById('v-entidad').value = ""; // resetea para que lo vuelva a elegir
+                document.getElementById('v-entidad').value = ""; 
                 return;
             }
 
@@ -605,7 +608,6 @@
                 fecha: fechaObj.toLocaleDateString('es-UY'), mes: fechaObj.getMonth() + 1, anio: fechaObj.getFullYear()
             });
 
-            // DESCUENTO AUTOMÁTICO DE CAJA
             await window.actualizarCaja('gasto', costo);
 
             document.getElementById('v-costo').value = ''; document.getElementById('v-km').value = ''; document.getElementById('v-detalle').value = '';

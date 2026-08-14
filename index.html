@@ -50,12 +50,13 @@
         .nav-btn.activo { color: var(--acento); font-weight: bold; }
         .icono { font-size: 1.5rem; margin-bottom: 4px; }
 
-        /* ESTADÍSTICAS DASHBOARD */
+        /* ESTADÍSTICAS CAJA */
         .grid-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
         .stat-box { background: white; padding: 15px; border-radius: 8px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-top: 3px solid var(--acento); }
         .stat-box h4 { color: #64748b; font-size: 0.75rem; margin-bottom: 5px; text-transform: uppercase;}
         .stat-box p { font-size: 1.3rem; font-weight: bold; color: var(--primario); }
-        .stat-full { grid-column: span 2; border-top: 3px solid #64748b; }
+        .stat-full { grid-column: span 2; border-top: 3px solid var(--verde); background-color: #f0fdf4; }
+        .btn-reset { background: none; border: none; color: #94a3b8; font-size: 0.8rem; text-decoration: underline; cursor: pointer; display: block; margin: 0 auto 15px auto; }
 
         /* ESTILOS DE LA AGENDA */
         .agenda-card { display: flex; background: white; border-radius: 8px; overflow: hidden; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e2e8f0;}
@@ -99,23 +100,26 @@
 
     <header>HerreríaValan</header>
 
-    <!-- PANTALLA 1: INICIO (DASHBOARD & AGENDA) -->
+    <!-- PANTALLA 1: INICIO (CAJA Y AGENDA) -->
     <main id="panel-dashboard" class="pantalla activa">
-        <h2>Resumen del Mes</h2>
+        <h2>Caja del Taller</h2>
         <div class="grid-stats">
-            <div class="stat-box">
-                <h4>Sueldos Pagados</h4>
-                <p id="stat-sueldos">$0</p>
+            <div class="stat-box" style="border-top-color: var(--verde);">
+                <h4>Ingresos por Trabajos</h4>
+                <p id="stat-ingresos" style="color: var(--verde);">$0</p>
             </div>
-            <div class="stat-box">
-                <h4>Adelantos (Calle)</h4>
-                <p id="stat-adelantos">$0</p>
+            <div class="stat-box" style="border-top-color: #dc2626;">
+                <h4>Gastos Totales</h4>
+                <p id="stat-gastos" style="color: #dc2626;">$0</p>
             </div>
             <div class="stat-box stat-full">
-                <h4>Gastos del Vehículo</h4>
-                <p id="stat-vehiculo">$0</p>
+                <h4>En Monedero <button class="btn-editar" onclick="window.editarMonedero()">✏️</button></h4>
+                <p id="stat-monedero" style="font-size: 1.6rem;">$0</p>
             </div>
         </div>
+        
+        <button class="btn-principal" style="background-color: var(--verde); margin-top: 0; margin-bottom: 10px;" onclick="window.ingresoManual()">+ Ingreso de Dinero</button>
+        <button class="btn-reset" onclick="window.reiniciarCaja()">🔄 Reiniciar caja a cero</button>
 
         <h2>Agenda de Trabajo</h2>
         <div class="tarjeta" style="background-color: #f8fafc; border: 1px dashed #cbd5e1;">
@@ -261,7 +265,7 @@
     <!-- LÓGICA DE FIREBASE Y LA APLICACIÓN -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy, updateDoc, arrayUnion } 
+        import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy, updateDoc, setDoc, getDoc, arrayUnion } 
         from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -280,6 +284,57 @@
         window.empleadosNube = [];
         window.itemsActuales = [];
 
+        // --- SISTEMA EN TIEMPO REAL: CAJA (MONEDERO) ---
+        const cajaRef = doc(db, "caja", "resumen");
+        onSnapshot(cajaRef, (docSnap) => {
+            if (docSnap.exists()) {
+                let data = docSnap.data();
+                document.getElementById('stat-ingresos').innerText = `$${data.ingresos || 0}`;
+                document.getElementById('stat-gastos').innerText = `$${data.gastos || 0}`;
+                document.getElementById('stat-monedero').innerText = `$${data.monedero || 0}`;
+            } else {
+                setDoc(cajaRef, { ingresos: 0, gastos: 0, monedero: 0 });
+            }
+        });
+
+        window.actualizarCaja = async function(tipo, monto) {
+            const snap = await getDoc(cajaRef);
+            if(snap.exists()) {
+                let d = snap.data();
+                if(tipo === 'ingreso') {
+                    await updateDoc(cajaRef, { ingresos: (d.ingresos || 0) + monto, monedero: (d.monedero || 0) + monto });
+                } else if(tipo === 'gasto') {
+                    await updateDoc(cajaRef, { gastos: (d.gastos || 0) + monto, monedero: (d.monedero || 0) - monto });
+                }
+            }
+        };
+
+        window.ingresoManual = async function() {
+            let monto = parseFloat(prompt("¿Cuánta plata ingresó a la caja?"));
+            if(!monto || isNaN(monto)) return;
+            let detalle = prompt("¿Por qué concepto? (Ej: Seña reja)");
+            await window.actualizarCaja('ingreso', monto);
+            alert(`Se sumaron $${monto} al monedero.`);
+        };
+
+        window.editarMonedero = async function() {
+            const snap = await getDoc(cajaRef);
+            if(snap.exists()) {
+                let actual = snap.data().monedero || 0;
+                let nuevo = parseFloat(prompt(`Saldo actual calculado: $${actual}\n\nIngresá la plata real que tenés en la caja/bolsillo para hacer el ajuste:`, actual));
+                if(nuevo !== null && !isNaN(nuevo)) {
+                    await updateDoc(cajaRef, { monedero: nuevo });
+                }
+            }
+        };
+
+        window.reiniciarCaja = async function() {
+            if(confirm("¿Estás seguro de reiniciar los contadores de la caja a cero? (Esto es ideal a principio de mes)")) {
+                await updateDoc(cajaRef, { ingresos: 0, gastos: 0, monedero: 0 });
+            }
+        };
+
+
         // --- SISTEMA EN TIEMPO REAL: AGENDA ---
         const qAgenda = query(collection(db, "agenda"), orderBy("fecha_iso", "asc"));
         onSnapshot(qAgenda, (snapshot) => {
@@ -292,8 +347,7 @@
             snapshot.forEach((docSnap) => {
                 let a = docSnap.data(); a.docId = docSnap.id;
                 
-                // Formatear la fecha para la tarjeta gigante
-                let partesFecha = a.fecha_iso.split('-'); // YYYY-MM-DD
+                let partesFecha = a.fecha_iso.split('-'); 
                 let dia = partesFecha[2];
                 let mesStr = meses[parseInt(partesFecha[1]) - 1];
 
@@ -322,10 +376,6 @@
             let lista = document.getElementById('lista-vehiculo');
             lista.innerHTML = '';
             
-            let totalGastoMes = 0;
-            let mesActual = new Date().getMonth() + 1;
-            let anioActual = new Date().getFullYear();
-            
             let maxKm = 0;
             let ultimoKmAceite = 0;
 
@@ -334,11 +384,6 @@
             snapshot.forEach((docSnap) => {
                 let v = docSnap.data(); v.docId = docSnap.id;
                 
-                // Cálculos para Dashboard
-                if(v.mes === mesActual && v.anio === anioActual) {
-                    totalGastoMes += v.monto;
-                }
-
                 // Lógica Cambio de Aceite
                 if (v.km > maxKm) maxKm = v.km;
                 if (v.tipo === 'repuesto' && v.detalle.toLowerCase().includes('aceite')) {
@@ -362,9 +407,6 @@
                 lista.appendChild(div);
             });
 
-            document.getElementById('stat-vehiculo').innerText = `$${totalGastoMes}`;
-
-            // Mostrar Alerta si pasaron 9000km desde el último cambio de aceite
             if (ultimoKmAceite > 0 && (maxKm - ultimoKmAceite) >= 9000) {
                 document.getElementById('alerta-aceite').style.display = 'block';
             } else {
@@ -395,12 +437,11 @@
             });
         });
 
-        // --- SISTEMA EN TIEMPO REAL: EMPLEADOS Y DASHBOARD ---
+        // --- SISTEMA EN TIEMPO REAL: EMPLEADOS ---
         onSnapshot(collection(db, "empleados"), (snapshot) => {
             window.empleadosNube = [];
             let lista = document.getElementById('lista-empleados');
             lista.innerHTML = '';
-            let totalAdelantos = 0;
 
             if(snapshot.empty) { lista.innerHTML = '<div class="tarjeta"><p style="text-align: center;">No hay empleados.</p></div>'; }
 
@@ -414,7 +455,6 @@
                 let sumaPremios = e.premios.reduce((acc, p) => acc + p.monto, 0);
                 let sumaAdelantos = e.adelantos.reduce((acc, a) => acc + a.monto, 0);
                 let saldoAPagar = (plataHoras + sumaPremios) - sumaAdelantos;
-                totalAdelantos += sumaAdelantos;
 
                 let movimientos = [];
                 e.horas.forEach(h => movimientos.push({...h, tipo: 'hora'}));
@@ -442,21 +482,11 @@
                         <button class="btn-accion btn-img" onclick="window.darPremio('${e.docId}')">🎁 Premio</button>
                         <button class="btn-accion btn-verde" onclick="window.liquidarSueldo('${e.docId}')">✅ Liquidar</button>
                     </div>
+                    <!-- BOTÓN ELIMINAR EMPLEADO REINCORPORADO -->
+                    <button class="btn-accion" style="background-color: #64748b; margin-top:10px; width: 100%;" onclick="window.borrarDoc('${e.docId}', 'empleados')">Eliminar Empleado</button>
                 `;
                 lista.appendChild(div);
             });
-            document.getElementById('stat-adelantos').innerText = `$${totalAdelantos}`;
-        });
-
-        onSnapshot(collection(db, "pagos_salarios"), (snapshot) => {
-            let totalPagadoMes = 0;
-            let mesActual = new Date().getMonth() + 1;
-            let anioActual = new Date().getFullYear();
-            snapshot.forEach((docSnap) => {
-                let pago = docSnap.data();
-                if(pago.mes === mesActual && pago.anio === anioActual) totalPagadoMes += pago.totalPagado;
-            });
-            document.getElementById('stat-sueldos').innerText = `$${totalPagadoMes}`;
         });
 
         // --- FUNCIONES AGENDA ---
@@ -498,10 +528,13 @@
                 fecha: fecha.toLocaleDateString('es-UY'), mes: fecha.getMonth() + 1, anio: fecha.getFullYear()
             });
 
+            // Suma automático a los gastos de la caja
+            await window.actualizarCaja('gasto', costo);
+
             document.getElementById('v-costo').value = '';
             document.getElementById('v-km').value = '';
             document.getElementById('v-detalle').value = '';
-            alert("Gasto del vehículo guardado.");
+            alert("Gasto del vehículo guardado y descontado de la caja.");
         };
 
         // --- IOS FIX: GENERAR Y COMPARTIR IMAGEN ---
@@ -548,7 +581,6 @@
             elemento.style.top = window.scrollY + 'px'; 
             elemento.style.left = '-9999px'; 
 
-            // SOLUCIÓN IOS SAFARI: Usar Web Share API
             html2canvas(elemento, { scale: 2, useCORS: true }).then(canvas => {
                 canvas.toBlob(blob => {
                     const file = new File([blob], nombreArchivo, { type: 'image/jpeg' });
@@ -565,7 +597,6 @@
                             elemento.style.display = 'none';
                         });
                     } else {
-                        // Respaldo para PC o navegadores viejos
                         let enlace = document.createElement('a');
                         enlace.download = nombreArchivo;
                         enlace.href = URL.createObjectURL(blob);
@@ -576,7 +607,7 @@
             });
         };
 
-        // --- FUNCIONES EMPLEADOS (Reducidas) ---
+        // --- FUNCIONES EMPLEADOS ---
         window.crearEmpleado = async function() {
             let nombre = prompt("Nombre del empleado:"); if(!nombre) return;
             let valorHora = parseFloat(prompt("¿Cuánto cobra por hora?")); if(!valorHora) return;
@@ -621,7 +652,11 @@
                 };
 
                 let nuevoPago = await addDoc(collection(db, "pagos_salarios"), datosPago);
-                window.generarImagenYCompartir(nuevoPago.id, 'recibo', datosPago, e.valorHora); // Sin WhatsApp automático
+                
+                // Suma automático a los gastos de la caja
+                await window.actualizarCaja('gasto', saldo);
+                
+                window.generarImagenYCompartir(nuevoPago.id, 'recibo', datosPago, e.valorHora); 
                 await updateDoc(doc(db, "empleados", docId), { horas: [], adelantos: [], premios: [] });
             }
         };

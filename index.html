@@ -20,7 +20,6 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
         body { background-color: var(--fondo); color: var(--texto); padding-bottom: 70px; }
 
-        /* NUEVO ENCABEZADO */
         header { background-color: var(--primario); color: white; padding: 12px 20px; display: flex; align-items: center; gap: 15px; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.25); }
         header img { width: 45px; height: 45px; border-radius: 8px; object-fit: contain; background: white; padding: 2px; }
         header span { font-size: 1.5rem; font-weight: 800; letter-spacing: 0.5px; }
@@ -50,9 +49,9 @@
         .btn-azul { background-color: #2563eb; }
 
         .nav-inferior { position: fixed; bottom: 0; width: 100%; background-color: white; display: flex; justify-content: space-around; padding: 10px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 100; }
-        .nav-btn { background: none; border: none; color: #94a3b8; font-size: 0.8rem; display: flex; flex-direction: column; align-items: center; width: 25%; }
+        .nav-btn { background: none; border: none; color: #94a3b8; font-size: 0.75rem; display: flex; flex-direction: column; align-items: center; width: 20%; padding: 0 2px;}
         .nav-btn.activo { color: var(--acento); font-weight: bold; }
-        .icono { font-size: 1.5rem; margin-bottom: 4px; }
+        .icono { font-size: 1.4rem; margin-bottom: 4px; }
 
         /* ESTADÍSTICAS CAJA */
         .grid-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
@@ -107,7 +106,7 @@
 <body>
 
     <header>
-        <img src="logo.jpg" alt="Logo">
+        <img src="logo.jpg" alt="Logo Empresa">
         <span>Herrería Valan</span>
     </header>
 
@@ -177,14 +176,36 @@
         <div id="lista-presupuestos"><div class="tarjeta"><p style="text-align: center;">Cargando...</p></div></div>
     </main>
 
-    <!-- PANTALLA 3: EMPLEADOS -->
+    <!-- PANTALLA 3: PORTFOLIO (NUEVO) -->
+    <main id="panel-catalogo" class="pantalla">
+        <h2>Portfolio de Trabajos</h2>
+        <div class="tarjeta">
+            <input type="text" id="c-nombre" class="input-form" placeholder="Nombre de la Obra (Ej: Portón Corredizo)">
+            <input type="text" id="c-plazo" class="input-form" placeholder="Plazo de ejecución (Ej: 14 días)">
+            
+            <h3 style="font-size:1rem; margin-top:5px; color: var(--primario);">Foto del ANTES</h3>
+            <input type="file" id="c-foto-a" accept="image/*" class="input-form" onchange="window.procesarFotoCatalogo(this, 'antes')">
+            <img id="c-preview-a" class="img-preview" style="display:none; max-height: 150px; border: 2px solid #dc2626;">
+            
+            <h3 style="font-size:1rem; margin-top:10px; color: var(--primario);">Foto del DESPUÉS</h3>
+            <input type="file" id="c-foto-d" accept="image/*" class="input-form" onchange="window.procesarFotoCatalogo(this, 'despues')">
+            <img id="c-preview-d" class="img-preview" style="display:none; max-height: 150px; border: 2px solid var(--verde);">
+
+            <button class="btn-principal" onclick="window.guardarCatalogo()">Guardar Proyecto en Portfolio</button>
+        </div>
+        
+        <h2 style="margin-top: 10px;">Trabajos Realizados</h2>
+        <div id="lista-catalogo"><div class="tarjeta"><p style="text-align: center;">Cargando trabajos...</p></div></div>
+    </main>
+
+    <!-- PANTALLA 4: EMPLEADOS -->
     <main id="panel-empleados" class="pantalla">
         <h2>Personal del Taller</h2>
         <button class="btn-secundario" onclick="window.crearEmpleado()" style="width: 100%; margin-bottom: 10px;">+ Agregar Empleado</button>
         <div id="lista-empleados"><div class="tarjeta"><p style="text-align: center;">Cargando empleados...</p></div></div>
     </main>
 
-    <!-- PANTALLA 4: VEHÍCULO -->
+    <!-- PANTALLA 5: VEHÍCULO -->
     <main id="panel-vehiculo" class="pantalla">
         <h2>Control Flota y Fletes</h2>
         <div id="alerta-aceite" class="tarjeta" style="display:none; background-color: #fef2f2; border: 1px solid #ef4444; color: #b91c1c; text-align: center; font-weight: bold;">
@@ -220,8 +241,9 @@
     <nav class="nav-inferior">
         <button class="nav-btn activa" onclick="window.cambiarPantalla('panel-dashboard', this)"><span class="icono">📊</span><span>Inicio</span></button>
         <button class="nav-btn" onclick="window.cambiarPantalla('panel-cotizaciones', this)"><span class="icono">📝</span><span>Cotizar</span></button>
+        <button class="nav-btn" onclick="window.cambiarPantalla('panel-catalogo', this)"><span class="icono">📸</span><span>Portfolio</span></button>
         <button class="nav-btn" onclick="window.cambiarPantalla('panel-empleados', this)"><span class="icono">👷</span><span>Personal</span></button>
-        <button class="nav-btn" onclick="window.cambiarPantalla('panel-vehiculo', this)"><span class="icono">🚚</span><span>Vehículos</span></button>
+        <button class="nav-btn" onclick="window.cambiarPantalla('panel-vehiculo', this)"><span class="icono">🚚</span><span>Flota</span></button>
     </nav>
 
     <!-- PLANTILLA OCULTA: PRESUPUESTO -->
@@ -229,7 +251,7 @@
         <div class="pdf-borde">
             <div class="pdf-header">
                 <div class="pdf-logo-titulo">
-                    <img src="logo.jpg" alt="Logo Herrería">
+                    <img src="logo.jpg" alt="Logo Empresa">
                     <div><h1 style="margin:0; font-size: 28px;">HERRERÍA VALAN</h1></div>
                 </div>
                 <div class="pdf-fechas">
@@ -263,7 +285,7 @@
         <div class="pdf-borde">
             <div class="pdf-header">
                 <div class="pdf-logo-titulo">
-                    <img src="logo.jpg" alt="Logo Herrería">
+                    <img src="logo.jpg" alt="Logo Empresa">
                     <div><h1 style="margin:0; font-size: 28px;">HERRERÍA VALAN</h1></div>
                 </div>
                 <div class="pdf-fechas">
@@ -293,7 +315,7 @@
         <div class="pdf-borde">
             <div class="pdf-header">
                 <div class="pdf-logo-titulo">
-                    <img src="logo.jpg" alt="Logo Herrería">
+                    <img src="logo.jpg" alt="Logo Empresa">
                     <div><h1 style="margin:0; font-size: 28px;">HERRERÍA VALAN</h1></div>
                 </div>
                 <div class="pdf-fechas">
@@ -325,12 +347,39 @@
         </div>
     </div>
 
+    <!-- PLANTILLA OCULTA: CATÁLOGO REDES SOCIALES -->
+    <div id="plantilla-catalogo" class="plantilla-export" style="width: 600px; background-color: var(--fondo); color: var(--primario); padding: 0;">
+        <div style="background-color: var(--primario); color: white; padding: 25px; text-align: center; border-bottom: 5px solid var(--acento);">
+            <img src="logo.jpg" alt="Logo Empresa" style="width: 100px; height: 100px; background: white; padding: 5px; border-radius: 12px; margin-bottom: 15px; object-fit: contain;">
+            <h1 style="margin:0; font-size: 32px; letter-spacing: 1px;">HERRERÍA VALAN</h1>
+            <p style="margin: 5px 0 0 0; font-size: 18px; color: #cbd5e1;">Frente Rejas - Escaleras - Puertas - Portones</p>
+        </div>
+        <div style="padding: 25px; text-align: center;">
+            <h2 id="cat-titulo" style="font-size: 28px; margin-bottom: 5px; color: var(--primario); border-bottom: none;">Nombre Obra</h2>
+            <p style="font-size: 18px; color: #64748b; margin-bottom: 25px; font-weight: bold;">⏱️ Tiempo de ejecución: <span id="cat-plazo"></span></p>
+            
+            <div style="position: relative; margin-bottom: 20px;">
+                <span style="position: absolute; top: 15px; left: 15px; background: #dc2626; color: white; padding: 8px 15px; font-size: 16px; font-weight: bold; border-radius: 6px; z-index: 10;">ANTES</span>
+                <img id="cat-img-antes" style="width: 100%; height: 400px; object-fit: cover; border-radius: 12px; border: 3px solid #cbd5e1;">
+            </div>
+            
+            <div style="position: relative; margin-bottom: 10px;">
+                <span style="position: absolute; top: 15px; left: 15px; background: var(--verde); color: white; padding: 8px 15px; font-size: 16px; font-weight: bold; border-radius: 6px; z-index: 10;">DESPUÉS</span>
+                <img id="cat-img-despues" style="width: 100%; height: 400px; object-fit: cover; border-radius: 12px; border: 3px solid #cbd5e1; box-shadow: 0 4px 15px rgba(0,0,0,0.15);">
+            </div>
+        </div>
+        <div style="background-color: var(--primario); color: white; padding: 20px; text-align: center; font-size: 20px; font-weight: bold;">
+            ¡Cotizá tu proyecto! 📲 WhatsApp: 091298873
+        </div>
+    </div>
+
     <!-- LÓGICA DE FIREBASE Y LA APLICACIÓN -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
         import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy, updateDoc, setDoc, getDoc, arrayUnion } 
         from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
+        // CREDENCIALES EXACTAS DE HERRERÍA VALAN
         const firebaseConfig = {
             apiKey: "AIzaSyDd6bMR8krKyVpT7vbO2TleS-KUcKwj06Q",
             authDomain: "herreriavalan.firebaseapp.com",
@@ -347,6 +396,7 @@
         window.empleadosNube = [];
         window.itemsActuales = [];
         window.medidasNube = [];
+        window.catalogoNube = []; 
 
         // --- SISTEMA EN TIEMPO REAL: CAJA (MONEDERO) ---
         const cajaRef = doc(db, "caja", "resumen");
@@ -399,6 +449,30 @@
         };
 
         // --- SISTEMA EN TIEMPO REAL: AGENDA ---
+        window.guardarAgenda = async function() {
+            let tarea = document.getElementById('ag-tarea').value;
+            let direccion = document.getElementById('ag-direccion').value;
+            let costo = document.getElementById('ag-costo').value || 0;
+            let fecha = document.getElementById('ag-fecha').value;
+
+            if(!tarea || !fecha) {
+                alert("Por favor, ingresá al menos qué trabajo es y seleccioná una fecha.");
+                return;
+            }
+
+            await addDoc(collection(db, "agenda"), {
+                tarea: tarea,
+                direccion: direccion,
+                costo: parseFloat(costo),
+                fecha_iso: fecha 
+            });
+
+            document.getElementById('ag-tarea').value = '';
+            document.getElementById('ag-direccion').value = '';
+            document.getElementById('ag-costo').value = '';
+            document.getElementById('ag-fecha').value = '';
+        };
+
         const qAgenda = query(collection(db, "agenda"), orderBy("fecha_iso", "asc"));
         onSnapshot(qAgenda, (snapshot) => {
             let lista = document.getElementById('lista-agenda');
@@ -432,7 +506,7 @@
             });
         });
 
-        // --- SISTEMA EN TIEMPO REAL: MEDIDAS DE OBRA (CON COMPRESOR) ---
+        // --- SISTEMA EN TIEMPO REAL: MEDIDAS DE OBRA ---
         window.fotoBase64 = "";
         window.previsualizarFoto = function(input) {
             if (!input.files[0]) return;
@@ -443,24 +517,19 @@
                 const img = new Image();
                 img.onload = function() {
                     const canvas = document.createElement("canvas");
-                    const MAX_WIDTH = 1000;
-                    const MAX_HEIGHT = 1000;
-                    let width = img.width;
-                    let height = img.height;
+                    const MAX_WIDTH = 1000; const MAX_HEIGHT = 1000;
+                    let width = img.width; let height = img.height;
 
                     if (width > height) {
                         if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
                     } else {
                         if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
                     }
-                    
-                    canvas.width = width;
-                    canvas.height = height;
+                    canvas.width = width; canvas.height = height;
                     const ctx = canvas.getContext("2d");
                     ctx.drawImage(img, 0, 0, width, height);
                     
                     window.fotoBase64 = canvas.toDataURL("image/jpeg", 0.7);
-                    
                     document.getElementById('m-preview').src = window.fotoBase64;
                     document.getElementById('m-preview').style.display = 'block';
                 };
@@ -508,6 +577,7 @@
             alert("Relevamiento guardado.");
         };
 
+        // Acá está la actualización visual de las tarjetas de medidas
         onSnapshot(collection(db, "medidas_obra"), (snap) => {
             window.medidasNube = [];
             let lista = document.getElementById('lista-medidas-guardadas');
@@ -515,13 +585,132 @@
             snap.forEach(doc => {
                 let d = doc.data(); d.docId = doc.id;
                 window.medidasNube.push(d);
+
+                let htmlMedidas = '<div style="background-color: #f8fafc; border-radius: 6px; padding: 10px; margin-bottom: 10px; border: 1px solid #e2e8f0;">';
+                htmlMedidas += '<h4 style="font-size: 0.85rem; color: var(--primario); margin-bottom: 5px; border-bottom: 1px solid #cbd5e1; padding-bottom: 3px;">Detalle de medidas:</h4>';
+                
+                if (d.medidas && d.medidas.length > 0) {
+                    d.medidas.forEach(m => { htmlMedidas += `<div style="display: flex; justify-content: space-between; font-size: 0.9rem; padding: 2px 0;"><span>${m.detalle}</span> <strong>${m.valor}</strong></div>`; });
+                } else {
+                    htmlMedidas += '<div style="font-size: 0.85rem; color: #64748b;">Sin medidas registradas.</div>';
+                }
+                htmlMedidas += '</div>';
+
+                let htmlNotas = '';
+                if (d.notas && d.notas.trim() !== "") {
+                    htmlNotas = `<p style="font-size: 0.85rem; color: #64748b; margin-bottom: 10px; font-style: italic;">📝 ${d.notas}</p>`;
+                }
+
                 let div = document.createElement('div'); div.className = 'tarjeta';
                 div.innerHTML = `
                     <h3 style="margin-bottom: 5px;">${d.cliente} <span style="font-size: 0.8rem; color:#64748b;">(${d.fecha})</span></h3>
                     <img src="${d.foto}" style="width: 100%; max-height: 200px; object-fit: cover; border-radius: 6px; margin-bottom: 10px;">
+                    ${htmlMedidas}
+                    ${htmlNotas}
                     <div style="display: flex; gap: 8px;">
                         <button class="btn-accion btn-img" onclick="window.generarImagenYCompartir('${d.docId}', 'medidas')">Generar Imagen</button>
                         <button class="btn-accion btn-borrar" onclick="window.borrarDoc('${d.docId}', 'medidas_obra')">Eliminar</button>
+                    </div>
+                `;
+                lista.appendChild(div);
+            });
+        });
+
+        // --- SISTEMA EN TIEMPO REAL: CATÁLOGO ANTES Y DESPUÉS (PORTFOLIO) ---
+        window.fotoAntesBase64 = "";
+        window.fotoDespuesBase64 = "";
+
+        window.procesarFotoCatalogo = function(input, tipo) {
+            if (!input.files[0]) return;
+            const file = input.files[0];
+            const reader = new FileReader();
+            
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement("canvas");
+                    const MAX_WIDTH = 1000; const MAX_HEIGHT = 1000;
+                    let width = img.width; let height = img.height;
+
+                    if (width > height) {
+                        if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+                    } else {
+                        if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+                    }
+                    canvas.width = width; canvas.height = height;
+                    const ctx = canvas.getContext("2d");
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    let b64 = canvas.toDataURL("image/jpeg", 0.7);
+                    
+                    if(tipo === 'antes') {
+                        window.fotoAntesBase64 = b64;
+                        document.getElementById('c-preview-a').src = b64;
+                        document.getElementById('c-preview-a').style.display = 'block';
+                    } else {
+                        window.fotoDespuesBase64 = b64;
+                        document.getElementById('c-preview-d').src = b64;
+                        document.getElementById('c-preview-d').style.display = 'block';
+                    }
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        };
+
+        window.guardarCatalogo = async function() {
+            let nombre = document.getElementById('c-nombre').value;
+            let plazo = document.getElementById('c-plazo').value;
+            
+            if(!nombre || !plazo || !window.fotoAntesBase64 || !window.fotoDespuesBase64) { 
+                alert("Por favor completá el nombre, el plazo y subí las dos fotos para el catálogo."); return; 
+            }
+
+            let fObj = new Date();
+            await addDoc(collection(db, "catalogo_obras"), {
+                nombre: nombre, plazo: plazo,
+                fotoAntes: window.fotoAntesBase64, fotoDespues: window.fotoDespuesBase64,
+                fecha: fObj.toLocaleDateString('es-UY')
+            });
+
+            document.getElementById('c-nombre').value = '';
+            document.getElementById('c-plazo').value = '';
+            document.getElementById('c-preview-a').style.display = 'none';
+            document.getElementById('c-preview-d').style.display = 'none';
+            document.getElementById('c-foto-a').value = '';
+            document.getElementById('c-foto-d').value = '';
+            window.fotoAntesBase64 = ""; window.fotoDespuesBase64 = "";
+            alert("¡Obra agregada a tu Portfolio con éxito!");
+        };
+
+        onSnapshot(query(collection(db, "catalogo_obras"), orderBy("fecha", "desc")), (snap) => {
+            window.catalogoNube = [];
+            let lista = document.getElementById('lista-catalogo');
+            lista.innerHTML = '';
+            if(snap.empty) { lista.innerHTML = '<div class="tarjeta"><p style="text-align: center;">No hay trabajos en el catálogo.</p></div>'; return; }
+
+            snap.forEach(doc => {
+                let c = doc.data(); c.docId = doc.id;
+                window.catalogoNube.push(c);
+                let div = document.createElement('div'); div.className = 'tarjeta';
+                div.innerHTML = `
+                    <h3 style="margin-bottom: 5px;">${c.nombre}</h3>
+                    <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 15px; font-weight: bold;">⏱️ Plazo: ${c.plazo}</p>
+                    
+                    <div style="display: flex; gap: 8px; margin-bottom: 15px;">
+                        <div style="flex: 1; position: relative;">
+                            <span style="position: absolute; top: 5px; left: 5px; background: #dc2626; color: white; padding: 2px 6px; font-size: 0.7rem; font-weight: bold; border-radius: 4px;">ANTES</span>
+                            <img src="${c.fotoAntes}" style="width: 100%; height: 140px; object-fit: cover; border-radius: 6px; border: 1px solid #cbd5e1;">
+                        </div>
+                        <div style="flex: 1; position: relative;">
+                            <span style="position: absolute; top: 5px; left: 5px; background: var(--verde); color: white; padding: 2px 6px; font-size: 0.7rem; font-weight: bold; border-radius: 4px;">DESPUÉS</span>
+                            <img src="${c.fotoDespues}" style="width: 100%; height: 140px; object-fit: cover; border-radius: 6px; border: 1px solid #cbd5e1;">
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn-accion btn-img" onclick="window.generarImagenYCompartir('${c.docId}', 'catalogo')">Generar Imagen Promocional</button>
+                        <button class="btn-accion btn-borrar" onclick="window.borrarDoc('${c.docId}', 'catalogo_obras')">Eliminar</button>
                     </div>
                 `;
                 lista.appendChild(div);
@@ -886,6 +1075,17 @@
                 elemento = document.getElementById('plantilla-medidas');
                 nombreArchivo = 'Medidas_HerreriaValan_' + m.cliente.replace(/\s+/g, '_') + '.jpg';
             }
+            // --- EXPORTAR CATÁLOGO PORTFOLIO ---
+            else if(tipo === 'catalogo') {
+                let c = window.catalogoNube.find(x => x.docId === docId);
+                document.getElementById('cat-titulo').innerText = c.nombre;
+                document.getElementById('cat-plazo').innerText = c.plazo;
+                document.getElementById('cat-img-antes').src = c.fotoAntes;
+                document.getElementById('cat-img-despues').src = c.fotoDespues;
+
+                elemento = document.getElementById('plantilla-catalogo');
+                nombreArchivo = 'Portfolio_HerreriaValan_' + c.nombre.replace(/\s+/g, '_') + '.jpg';
+            }
 
             elemento.style.display = 'block';
             elemento.style.position = 'absolute';
@@ -897,7 +1097,7 @@
                     const file = new File([blob], nombreArchivo, { type: 'image/jpeg' });
                     
                     if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                        navigator.share({ files: [file], title: 'Documento HerreríaValan' })
+                        navigator.share({ files: [file], title: 'Documento Herrería Valan' })
                         .then(() => { elemento.style.display = 'none'; })
                         .catch(err => { console.error('Error al compartir', err); elemento.style.display = 'none'; });
                     } else {
